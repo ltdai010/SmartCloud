@@ -48,4 +48,4 @@ void Game_setup::End()
 {
 	SDL_RenderPresent(renderer);
 }
-
+//test 2
