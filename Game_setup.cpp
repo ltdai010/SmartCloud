@@ -38,14 +38,13 @@ SDL_Event* Game_setup::GetMainEvent()
 	return mainEvent;
 }
 
-void Game_setup::Begin()
+void Game_setup::Begin()//Clear window, poll event
 {
 	SDL_PollEvent(mainEvent);
 	SDL_RenderClear(renderer);
 }
 
-void Game_setup::End()
+void Game_setup::End()//Render Window
 {
 	SDL_RenderPresent(renderer);
 }
-//test 2
