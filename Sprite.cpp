@@ -35,14 +35,14 @@ void Sprite::Draw()
 void Sprite::Movement()
 {
 	UpdateControl();
-	if (timeCheck + TIME_SPACE < SDL_GetTicks())
+	if (timeCheck + TIME_SPACE < SDL_GetTicks()) //make the game slower. 1 frame per 0.01s
 	{
 		UpdateMovement();
 		timeCheck = SDL_GetTicks();
 	}
 }
 
-void Sprite::UpdateControl()
+void Sprite::UpdateControl() //a button: turn left, d button: turn right
 {
 	switch (game_event->type)
 	{
@@ -82,7 +82,7 @@ void Sprite::UpdateControl()
 	}
 }
 
-void Sprite::UpdateMovement()
+void Sprite::UpdateMovement() //change position of the cloud base on moving command
 {
 	if (moveLeft)
 	{
