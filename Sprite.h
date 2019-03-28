@@ -7,9 +7,6 @@ public:
 	void Draw();
 	void SetX(int x);
 	void SetY(int y);
-	void UpdateControl();
-	void UpdateMovement();
-	void Movement();
 	int GetX();
 	int GetY();
 private:
@@ -17,8 +14,5 @@ private:
 	SDL_Renderer *renderer;
 	SDL_Texture* image;
 	SDL_Rect rect;
-	long long int timeCheck;
-	bool moveLeft;
-	bool moveRight;
 };
 
