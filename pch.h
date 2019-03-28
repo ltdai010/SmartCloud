@@ -20,6 +20,7 @@
 #include <string>
 #include "Game_setup.h"
 #include "Sprite.h"
+#include "Cloud.h"
 
 // TODO: add headers that you want to pre-compile here
 
