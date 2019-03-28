@@ -14,6 +14,8 @@
 #define CLOUD_HEIGHT 100
 #define ClOUD_SPEED 3
 #define TIME_SPACE 10 
+#define CLOUD_FRAME_X 2
+#define CLOUD_FRAME_Y 2
 #include<iostream>
 #include <SDL.h>
 #include <SDL_image.h>
