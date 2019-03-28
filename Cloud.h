@@ -7,6 +7,7 @@ public:
 	void UpdateControl();
 	void UpdateMovement();
 	void Movement();
+	void UpdateAnimation();
 	void Draw();
 private:
 	Sprite* cloud;
@@ -14,5 +15,7 @@ private:
 	long long int timeCheck;
 	bool moveLeft;
 	bool moveRight;
+	bool preLeft;
+	bool preRight;
 };
 
