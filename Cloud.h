@@ -2,7 +2,7 @@
 class Cloud
 {
 public:
-	Cloud(Game_setup *game_setup, std::string path, int x, int y, int w, int h);
+	Cloud(Game_setup *passed_game_setup, std::string path, int x, int y, int w, int h);
 	~Cloud();
 	void UpdateControl();
 	void UpdateMovement();
@@ -11,7 +11,7 @@ public:
 	void Draw();
 private:
 	Sprite* cloud;
-	SDL_Event* game_event;
+	Game_setup* game_setup;
 	long long int timeCheck;
 	bool moveLeft;
 	bool moveRight;
