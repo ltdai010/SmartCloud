@@ -2,7 +2,7 @@
 class Sprite
 {
 public:
-	Sprite(Game_setup *game_setup, std::string path, int x, int y, int w, int h);
+	Sprite(SDL_Renderer *passed_renderer, std::string path, int x, int y, int w, int h);
 	~Sprite();
 	void Draw();
 	void SetX(int x);
@@ -13,7 +13,6 @@ public:
 	int GetX();
 	int GetY();
 private:
-	SDL_Event *game_event;
 	SDL_Renderer *renderer;
 	SDL_Texture* image;
 	SDL_Rect rect;
