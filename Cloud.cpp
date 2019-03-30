@@ -2,10 +2,10 @@
 #include "Cloud.h"
 
 
-Cloud::Cloud(Game_setup *game_setup, std::string path, int x, int y, int w, int h)
+Cloud::Cloud(Game_setup *passed_game_setup, std::string path, int x, int y, int w, int h)
 {
-	game_event = game_setup->GetMainEvent();
-	cloud = new Sprite(game_setup, path, x, y, w, h);
+	game_setup = passed_game_setup;
+	cloud = new Sprite(game_setup->GetRenderer(), path, x, y, w, h);
 	cloud->SetAmountFrame(CLOUD_FRAME_X, CLOUD_FRAME_Y);
 	timeCheck = SDL_GetTicks();
 	moveLeft = false;
@@ -18,7 +18,6 @@ Cloud::Cloud(Game_setup *game_setup, std::string path, int x, int y, int w, int 
 Cloud::~Cloud()
 {
 	delete cloud;
-	delete game_event;
 }
 
 void Cloud::Movement()
@@ -56,10 +55,10 @@ void Cloud::UpdateAnimation()
 
 void Cloud::UpdateControl()
 {
-	switch (game_event->type)
+	switch (game_setup->GetMainEvent()->type)
 	{
 	case SDL_KEYDOWN:
-		switch (game_event->key.keysym.sym)
+		switch (game_setup->GetMainEvent()->key.keysym.sym)
 		{
 		case SDLK_a:
 			moveLeft = true;
@@ -79,10 +78,10 @@ void Cloud::UpdateControl()
 	default:
 		break;
 	}
-	switch (game_event->type)
+	switch (game_setup->GetMainEvent()->type)
 	{
 	case SDL_KEYUP:
-		switch (game_event->key.keysym.sym)
+		switch (game_setup->GetMainEvent()->key.keysym.sym)
 		{
 		case SDLK_a:
 			moveLeft = false;
