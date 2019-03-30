@@ -13,16 +13,35 @@
 #define CLOUD_WIDTH 100
 #define CLOUD_HEIGHT 100
 #define ClOUD_SPEED 3
+#define BRAIN_SPEED 1
 #define TIME_SPACE 10 
 #define CLOUD_FRAME_X 2
 #define CLOUD_FRAME_Y 2
+#define BORDER_LEFT 100
+#define BORDER_RIGHT 600
+#define SPAWN_TIME_SPACE 1000
+enum BookType
+{
+	SIZE,
+	MAGNET,
+	DOUBLESCORE
+};
 #include<iostream>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <string>
+#include <time.h>
 #include "Game_setup.h"
 #include "Sprite.h"
 #include "Cloud.h"
+#include "Brain.h"
+#include "Book.h"
+#include "Food.h"
+#include "Main.h"
+
+
+
+
 
 // TODO: add headers that you want to pre-compile here
 
