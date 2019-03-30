@@ -2,12 +2,11 @@
 #include "Sprite.h"
 
 
-Sprite::Sprite(Game_setup *game_setup, std::string path, int x, int y, int w, int h)
+Sprite::Sprite(SDL_Renderer *passed_renderer, std::string path, int x, int y, int w, int h)
 {
-	game_event = game_setup->GetMainEvent();
-	this->renderer = game_setup->GetRenderer();
+	renderer = passed_renderer;
 	image = NULL;
-	image = IMG_LoadTexture(this->renderer, path.c_str());
+	image = IMG_LoadTexture(renderer, path.c_str());
 	if (image == NULL)
 	{
 		std::cout << "Could not load image" << std::endl;
@@ -28,7 +27,6 @@ Sprite::Sprite(Game_setup *game_setup, std::string path, int x, int y, int w, in
 Sprite::~Sprite()
 {
 	SDL_DestroyTexture(image);
-	delete game_event;
 }
 
 void Sprite::SetAmountFrame(int x, int y)
