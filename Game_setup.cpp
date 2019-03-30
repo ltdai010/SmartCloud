@@ -5,7 +5,7 @@
 Game_setup::Game_setup(bool* quit, int passed_ScreenWidth, int passed_ScreenHeight)
 {
 	window = NULL;
-	window = SDL_CreateWindow("SDL Game!",
+	window = SDL_CreateWindow("Smart Cloud",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		passed_ScreenWidth,
