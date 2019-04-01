@@ -7,7 +7,7 @@ Food::Food(Game_setup *passed_game_setup)
 	game_setup = passed_game_setup;
 	for (int i = 0; i < 10; ++i)
 	{
-		brain[i] = new Brain(game_setup, "brain.png", 300, -10000, 50, 50);
+		brain[i] = new Brain(game_setup, "brain.png", 300, -10000, BRAIN_WIDTH, BRAIN_HEIGHT);
 	}
 }
 
@@ -21,23 +21,16 @@ Food::~Food()
 	}
 }
 
-void Food::RandomSpawnFood()
+void Food::RandomSpawnFood(int i)
 {
-	srand(time(NULL));
-	for (int i = 0; i < 10; ++i)
-	{
-		spawnLocationY[i] = -(rand() % 3000);
-		spawnLocationX[i] = rand() % (BORDER_RIGHT - BORDER_LEFT)  + BORDER_LEFT;
-	}
+	spawnLocationY[i] = -(rand() % 3000);
+	spawnLocationX[i] = rand() % (BORDER_RIGHT - BORDER_LEFT)  + BORDER_LEFT;
 }
 
-void Food::SpawnFood()
+void Food::SpawnFood(int i)
 {
-	for (int i = 0; i < 10; ++i)
-	{
-		brain[i]->SetX(spawnLocationX[i]);
-		brain[i]->SetY(spawnLocationY[i]);
-	}
+	brain[i]->SetX(spawnLocationX[i]);
+	brain[i]->SetY(spawnLocationY[i]);
 }
 
 void Food::Draw()
@@ -54,6 +47,16 @@ void Food::Movement()
 	{
 		brain[i]->MoveDown();
 	}
+}
+
+int Food::GetBrainX(int i)
+{
+	return brain[i]->GetX();
+}
+
+int Food::GetBrainY(int i)
+{
+	return brain[i]->GetY();
 }
 
 
