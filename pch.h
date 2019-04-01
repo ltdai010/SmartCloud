@@ -10,15 +10,18 @@
 #define PCH_H
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
+#define AMOUT_BRAIN 10
 #define CLOUD_WIDTH 100
 #define CLOUD_HEIGHT 100
+#define BRAIN_WIDTH 50
+#define BRAIN_HEIGHT 50
 #define ClOUD_SPEED 3
 #define BRAIN_SPEED 1
 #define TIME_SPACE 10 
 #define CLOUD_FRAME_X 2
 #define CLOUD_FRAME_Y 2
 #define BORDER_LEFT 100
-#define BORDER_RIGHT 600
+#define BORDER_RIGHT 500
 #define SPAWN_TIME_SPACE 1000
 enum BookType
 {
@@ -29,6 +32,8 @@ enum BookType
 #include<iostream>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
+#include <SDL_ttf.h>
 #include <string>
 #include <time.h>
 #include "Game_setup.h"
@@ -37,7 +42,10 @@ enum BookType
 #include "Brain.h"
 #include "Book.h"
 #include "Food.h"
+#include "Game_Text.h"
 #include "Main.h"
+
+
 
 
 
