@@ -4,17 +4,17 @@ class Food
 public:
 	Food(Game_setup *passed_game_setup);
 	~Food();
-	void RandomSpawnFood();
+	void RandomSpawnFood(int i);
 	void Movement();
-	void SpawnFood();
+	void SpawnFood(int i);
 	void Draw();
+	int GetBrainX(int i);
+	int GetBrainY(int i);
 
 private:
-	Brain* brain[10];
+	Brain* brain[AMOUT_BRAIN];
 	Game_setup* game_setup;
-	bool touchCloud[10];
-	bool touchGround[10];
-	int spawnLocationY[10];
-	int spawnLocationX[10];
+	int spawnLocationY[AMOUT_BRAIN];
+	int spawnLocationX[AMOUT_BRAIN];
 };
 
