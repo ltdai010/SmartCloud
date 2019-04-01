@@ -8,6 +8,8 @@ public:
 	void Draw();
 	void SetX(int x);
 	void SetY(int y);
+	int GetX();
+	int GetY();
 private:
 	Sprite *brain;
 	long long int timeCheck;
