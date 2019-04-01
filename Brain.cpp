@@ -36,3 +36,13 @@ void Brain::SetY(int y)
 {
 	brain->SetY(y);
 }
+
+int Brain::GetX()
+{
+	return brain->GetX();
+}
+
+int Brain::GetY()
+{
+	return brain->GetY();
+}
