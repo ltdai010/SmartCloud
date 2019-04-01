@@ -117,3 +117,23 @@ void Cloud::Draw()
 {
 	cloud->Draw();
 }
+
+int Cloud::GetX()
+{
+	return cloud->GetX();
+}
+
+int Cloud::GetY()
+{
+	return cloud->GetY();
+}
+
+void Cloud::SetX(int x)
+{
+	cloud->SetX(x);
+}
+
+void Cloud::SetY(int y)
+{
+	cloud->SetY(y);
+}
