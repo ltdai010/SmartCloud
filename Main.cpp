@@ -36,11 +36,11 @@ void Main::GameLoop()
 	{
 		game_setup->Begin();
 		background->Draw();
-		cloud->Movement();
-		cloud->Draw();
 		UpdateCondition();
-		food->Movement();
+		cloud->Draw();
+		cloud->Movement();
 		food->Draw();
+		food->Movement();
 		IntergerToString(score);
 		score_text->LoadText(scoreStr);
 		score_text->RenderText();
@@ -84,10 +84,26 @@ void Main::FirstSetup()
 	}
 }
 
+bool Main::CloudTouchBorder()
+{
+	if (cloud->GetX() <= BORDER_LEFT || cloud->GetX() >= BORDER_RIGHT)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void Main::UpdateCondition()
 {
 	for (int i = 0; i < AMOUT_BRAIN; ++i)
 	{
+		if (CloudTouchBorder()) //if cloud touch border, it stops
+		{
+			cloud->Stop(true);
+		}
 		if (EatenBrain(i)) //if brain is eaten, respawn, +10 score
 		{
 			food->RandomSpawnFood(i);
