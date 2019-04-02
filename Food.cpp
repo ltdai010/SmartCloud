@@ -59,4 +59,3 @@ int Food::GetBrainY(int i)
 	return brain[i]->GetY();
 }
 
-
