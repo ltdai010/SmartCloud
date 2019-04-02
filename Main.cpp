@@ -13,6 +13,10 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	score_text->SetColor(0, 0, 0);
 	score_text->SetSize(150, 50);
 	score_text->SetLocation(650, 50);
+	for (int i = 0; i < 10; ++i)
+	{
+		scoreStr[i] = '0';
+	}
 	timeCheck = SDL_GetTicks();
 	score = 0;
 }
@@ -34,9 +38,11 @@ void Main::GameLoop()
 		background->Draw();
 		cloud->Movement();
 		cloud->Draw();
+		UpdateCondition();
 		food->Movement();
 		food->Draw();
-		score_text->LoadText("Smart Cloud");
+		IntergerToString(score);
+		score_text->LoadText(scoreStr);
 		score_text->RenderText();
 
 		game_setup->End();
@@ -45,7 +51,7 @@ void Main::GameLoop()
 
 bool Main::EatenBrain(int i)
 {
-	if (cloud->GetX() + CLOUD_WIDTH >= food->GetBrainX(i) && cloud->GetX() <= food->GetBrainX(i) + BRAIN_WIDTH)
+	if (cloud->GetX() + CLOUD_WIDTH >= food->GetBrainX(i) && cloud->GetX() <= food->GetBrainX(i) + BRAIN_WIDTH && cloud->GetY() + CLOUD_HEIGHT >= food->GetBrainY(i) && cloud->GetY() <= food->GetBrainY(i) + BRAIN_HEIGHT)
 	{
 		return true;
 	}
@@ -75,5 +81,34 @@ void Main::FirstSetup()
 	{
 		food->RandomSpawnFood(i);
 		food->SpawnFood(i);
+	}
+}
+
+void Main::UpdateCondition()
+{
+	for (int i = 0; i < AMOUT_BRAIN; ++i)
+	{
+		if (EatenBrain(i)) //if brain is eaten, respawn, +10 score
+		{
+			food->RandomSpawnFood(i);
+			food->SpawnFood(i);
+			score += SCORE_PER_BRAIN;
+		}
+		else if (MissedBrain(i)) //if brain is missed, respawn
+		{
+			food->RandomSpawnFood(i);
+			food->SpawnFood(i);
+		}
+	}
+}
+
+void Main::IntergerToString(int passed_score)
+{
+	int i = 9;
+	while (passed_score > 0)
+	{
+		scoreStr[i] = passed_score % 10 + 48;
+		passed_score = passed_score / 10;
+		--i;
 	}
 }
