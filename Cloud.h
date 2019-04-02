@@ -13,6 +13,7 @@ public:
 	int GetY();
 	void SetX(int x);
 	void SetY(int y);
+	void Stop(bool stop);
 private:
 	Sprite* cloud;
 	Game_setup* game_setup;
@@ -21,5 +22,6 @@ private:
 	bool moveRight;
 	bool preLeft;
 	bool preRight;
+	bool stop;
 };
 
