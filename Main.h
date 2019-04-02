@@ -9,6 +9,7 @@ public:
 	bool EatenBrain(int i);
 	bool MissedBrain(int i);
 	void UpdateCondition();
+	void IntergerToString(int passed_score);
 	void EatBook();
 private:
 	Game_setup *game_setup;
@@ -17,6 +18,7 @@ private:
 	Cloud *cloud;
 	Food *food;
 	bool quit;
+	char scoreStr[10];
 	Uint32 score;
 	long long int timeCheck;
 };
