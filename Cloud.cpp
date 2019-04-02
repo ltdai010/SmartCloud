@@ -8,6 +8,7 @@ Cloud::Cloud(Game_setup *passed_game_setup, std::string path, int x, int y, int 
 	cloud = new Sprite(game_setup->GetRenderer(), path, x, y, w, h);
 	cloud->SetAmountFrame(CLOUD_FRAME_X, CLOUD_FRAME_Y);
 	timeCheck = SDL_GetTicks();
+	stop = false;
 	moveLeft = false;
 	moveRight = false;
 	preLeft = true;
@@ -33,11 +34,11 @@ void Cloud::Movement()
 
 void Cloud::UpdateAnimation()
 {
-	if (moveLeft)
+	if (moveLeft && !stop)
 	{
 		cloud->PlayAnimation(1, 1, 0, 0);
 	}
-	else if (moveRight)
+	else if (moveRight && !stop)
 	{
 		cloud->PlayAnimation(1, 1, 1, 0);
 	}
@@ -136,4 +137,19 @@ void Cloud::SetX(int x)
 void Cloud::SetY(int y)
 {
 	cloud->SetY(y);
+}
+
+void Cloud::Stop(bool stop)
+{
+	this->stop = stop;
+	if (stop && moveLeft)
+	{
+		preLeft = true;
+		cloud->SetX(cloud->GetX() + ClOUD_SPEED);
+	}
+	else if (stop && moveRight)
+	{
+		preRight = true;
+		cloud->SetX(cloud->GetX() - ClOUD_SPEED);
+	}
 }
