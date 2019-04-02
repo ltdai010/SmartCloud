@@ -23,6 +23,7 @@
 #define BORDER_LEFT 100
 #define BORDER_RIGHT 500
 #define SPAWN_TIME_SPACE 1000
+#define SCORE_PER_BRAIN 10
 enum BookType
 {
 	SIZE,
@@ -36,6 +37,7 @@ enum BookType
 #include <SDL_ttf.h>
 #include <string>
 #include <time.h>
+#include <cstdlib>
 #include "Game_setup.h"
 #include "Sprite.h"
 #include "Cloud.h"
