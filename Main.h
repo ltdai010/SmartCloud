@@ -10,6 +10,7 @@ public:
 	bool MissedBrain(int i);
 	void UpdateCondition();
 	void IntergerToString(int passed_score);
+	bool CloudTouchBorder();
 	void EatBook();
 private:
 	Game_setup *game_setup;
