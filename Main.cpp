@@ -104,6 +104,10 @@ void Main::UpdateCondition()
 		{
 			cloud->Stop(true);
 		}
+		else
+		{
+			cloud->Stop(false);
+		}
 		if (EatenBrain(i)) //if brain is eaten, respawn, +10 score
 		{
 			food->RandomSpawnFood(i);
