@@ -14,6 +14,7 @@ public:
 	void PlayMusic(Mix_Music* music);
 	void PlayChunk(Mix_Chunk* chunk);
 	void UpdateMusic();
+	void StartMenu();
 	void EatBook();
 private:
 	Game_setup *game_setup;
@@ -21,6 +22,7 @@ private:
 	Sprite *background;
 	Cloud *cloud;
 	Food *food;
+	Menu *menu;
 	Mix_Music *backgroundSound;
 	Mix_Chunk *eatBrain;
 	bool quit;
@@ -28,5 +30,6 @@ private:
 	Uint32 score;
 	long long int timeCheck;
 	bool playMusic;
+	Selection select;
 };
 
