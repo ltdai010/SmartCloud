@@ -12,9 +12,12 @@ int main(int argc, char* argv[])
 		SDL_Log("Unable to initialize TTF: %s", TTF_GetError());
 	}
 	Main *main = new Main(SCREEN_WIDTH, SCREEN_HEIGHT, CLOUD_WIDTH, CLOUD_HEIGHT);
-	main->GameLoop();
+	main->StartMenu();
 	delete main;
 	TTF_Quit();
+	Mix_Quit();
+	IMG_Quit();
 	SDL_Quit();
 	return 0;
 }
+
