@@ -10,6 +10,7 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	cloud = new Cloud(game_setup, "image/cloud.png", 200, 450, cloudWidth, cloudHeight);
 	food = new Food(game_setup);
 	score_text = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
+	menu = new Menu(game_setup, "image/menu.jpg");
 	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
 	{
 		std::cout << Mix_GetError() << std::endl;
@@ -32,6 +33,7 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	timeCheck = SDL_GetTicks();
 	score = 0;
 	playMusic = true;
+	select = Uncommand;
 }
 
 
@@ -40,6 +42,9 @@ Main::~Main()
 	delete game_setup;
 	delete background;
 	delete cloud;
+	delete score_text;
+	delete food;
+	delete menu;
 }
 
 void Main::GameLoop()
@@ -60,10 +65,10 @@ void Main::GameLoop()
 		IntergerToString(score);
 		score_text->LoadText(scoreStr);
 		score_text->RenderText();
-
 		game_setup->End();
 	}
 }
+
 
 bool Main::EatenBrain(int i)
 {
@@ -196,5 +201,24 @@ void Main::UpdateMusic()
 		}
 	default:
 		break;
+	}
+}
+
+void Main::StartMenu()
+{
+	while (select == Uncommand && game_setup->GetMainEvent()->type != SDL_QUIT)
+	{
+		game_setup->Begin();
+		menu->CheckCommand(&select);
+		menu->Draw();
+		game_setup->End();
+	}
+	if (select == Start)
+	{
+		GameLoop();	
+	}
+	else if (select == Quit)
+	{
+		quit = true;
 	}
 }
