@@ -142,14 +142,14 @@ void Cloud::SetY(int y)
 void Cloud::Stop(bool stop)
 {
 	this->stop = stop;
-	if (stop && moveLeft)
+	if (stop && cloud->GetX() <= BORDER_LEFT)
 	{
 		preLeft = true;
-		cloud->SetX(cloud->GetX() + ClOUD_SPEED);
+		cloud->SetX(BORDER_LEFT);
 	}
-	else if (stop && moveRight)
+	else if (stop && cloud->GetX() >= BORDER_RIGHT)
 	{
 		preRight = true;
-		cloud->SetX(cloud->GetX() - ClOUD_SPEED);
+		cloud->SetX(BORDER_RIGHT);
 	}
 }
