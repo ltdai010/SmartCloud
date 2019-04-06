@@ -8,7 +8,7 @@
 
 #ifndef PCH_H
 #define PCH_H
-#define SCREEN_WIDTH 800
+#define SCREEN_WIDTH 1100
 #define SCREEN_HEIGHT 600
 #define AMOUT_BRAIN 10
 #define CLOUD_WIDTH 100
@@ -16,7 +16,7 @@
 #define BRAIN_WIDTH 50
 #define BRAIN_HEIGHT 50
 #define ClOUD_SPEED 3
-#define BRAIN_SPEED 1
+#define BRAIN_SPEED 2
 #define TIME_SPACE 10 
 #define CLOUD_FRAME_X 2
 #define CLOUD_FRAME_Y 2
@@ -24,11 +24,22 @@
 #define BORDER_RIGHT 500
 #define SPAWN_TIME_SPACE 1000
 #define SCORE_PER_BRAIN 10
+#define MENU_TEXT_X 850
+#define START_TEXT_WIDTH 200
+#define START_TEXT_HEIGHT 100
 enum BookType
 {
 	SIZE,
 	MAGNET,
 	DOUBLESCORE
+};
+enum Selection
+{
+	Uncommand,
+	Start,
+	Instruction,
+	HighScore,
+	Quit
 };
 #include<iostream>
 #include <SDL.h>
@@ -45,8 +56,8 @@ enum BookType
 #include "Book.h"
 #include "Food.h"
 #include "Game_Text.h"
+#include "Menu.h"
 #include "Main.h"
-
 
 
 
