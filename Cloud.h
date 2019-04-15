@@ -14,9 +14,11 @@ public:
 	void SetX(int x);
 	void SetY(int y);
 	void Stop(bool stop);
+	void EatBrainChunk();
 private:
 	Sprite* cloud;
 	Game_setup* game_setup;
+	Mix_Chunk *eatBrain;
 	long long int timeCheck;
 	bool moveLeft;
 	bool moveRight;
