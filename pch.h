@@ -8,7 +8,7 @@
 
 #ifndef PCH_H
 #define PCH_H
-#define SCREEN_WIDTH 1100
+#define SCREEN_WIDTH 1081
 #define SCREEN_HEIGHT 600
 #define AMOUT_BRAIN 10
 #define CLOUD_WIDTH 100
@@ -39,7 +39,9 @@ enum Selection
 	Start,
 	Instruction,
 	HighScore,
-	Quit
+	Quit,
+	Back,
+	Game_Quit
 };
 #include<iostream>
 #include <SDL.h>
