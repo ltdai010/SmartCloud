@@ -10,6 +10,7 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	cloud = new Cloud(game_setup, "image/cloud.png", 200, 450, cloudWidth, cloudHeight);
 	food = new Food(game_setup);
 	score_text = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
+	game_quit = new Sprite(game_setup->GetRenderer(), "image/X.png", 1000, 20, 30, 30);
 	menu = new Menu(game_setup, "image/menu.jpg");
 	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
 	{
@@ -17,15 +18,14 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 		std::cout << "failed to open sound device" << std::endl;
 	}
 	backgroundSound = Mix_LoadMUS("audio/background.mp3");
-	eatBrain = Mix_LoadWAV("audio/EatBrain.wav");
-	if (backgroundSound == NULL || eatBrain == NULL)
+	if (backgroundSound == NULL )
 	{
 		std::cout << Mix_GetError() << std::endl;
 		std::cout << "failed to load sound" << std::endl;
 	}
 	score_text->SetColor(0, 0, 0);
 	score_text->SetSize(150, 50);
-	score_text->SetLocation(650, 50);
+	score_text->SetLocation(800, 50);
 	for (int i = 0; i < 10; ++i)
 	{
 		scoreStr[i] = '0';
@@ -39,7 +39,6 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 
 Main::~Main()
 {
-	delete game_setup;
 	delete background;
 	delete cloud;
 	delete score_text;
@@ -53,10 +52,12 @@ void Main::GameLoop()
 	PlayMusic(backgroundSound);
 	Mix_VolumeMusic(MIX_MAX_VOLUME);
 	Mix_Volume(-1, MIX_MAX_VOLUME);
-	while (!quit && game_setup->GetMainEvent()->type != SDL_QUIT)
+	while (!quit && game_setup->GetMainEvent()->type != SDL_QUIT && select != Game_Quit)
 	{
 		game_setup->Begin();
 		background->Draw();
+		game_quit->Draw();
+		CheckQuit(&select);
 		UpdateCondition();
 		cloud->Draw();
 		cloud->Movement();
@@ -134,7 +135,7 @@ void Main::UpdateCondition()
 		{
 			food->RandomSpawnFood(i);
 			food->SpawnFood(i);
-			PlayChunk(eatBrain);
+			cloud->EatBrainChunk();
 			score += SCORE_PER_BRAIN;
 		}
 		else if (MissedBrain(i)) //if brain is missed, respawn
@@ -174,15 +175,6 @@ void Main::PlayMusic(Mix_Music* music)
 	}
 }
 
-void Main::PlayChunk(Mix_Chunk* chunk)
-{
-	if (Mix_PlayChannel(-1, chunk, 0) == -1)
-	{
-		std::cout << Mix_GetError() << std::endl;
-		std::cout << "failed to play treasure sound" << std::endl;
-	}
-}
-
 void Main::UpdateMusic()
 {
 	switch (game_setup->GetMainEvent()->type)
@@ -204,18 +196,54 @@ void Main::UpdateMusic()
 	}
 }
 
+void Main::CheckQuit(Selection* select)
+{
+	SDL_GetMouseState(&mousePointX, &mousePointY);
+	if (mousePointX >= 1000 && mousePointX <= 1030 && mousePointY >= 20 && mousePointY <= 50)
+	{
+		if (game_setup->GetMainEvent()->type == SDL_MOUSEBUTTONDOWN)
+		{
+			if (game_setup->GetMainEvent()->button.button == SDL_BUTTON_LEFT)
+			{
+				*select = Game_Quit;
+			}
+		}
+	}
+}
+
 void Main::StartMenu()
 {
+	select = Uncommand;
 	while (select == Uncommand && game_setup->GetMainEvent()->type != SDL_QUIT)
 	{
 		game_setup->Begin();
 		menu->CheckCommand(&select);
 		menu->Draw();
+		menu->DrawText();
 		game_setup->End();
 	}
 	if (select == Start)
 	{
 		GameLoop();	
+		if (select == Game_Quit)
+		{
+			Mix_PauseMusic();
+			StartMenu();
+		}
+	}
+	else if (select == Instruction)
+	{
+		while (game_setup->GetMainEvent()->type != SDL_QUIT && select != Back)
+		{
+			game_setup->Begin();
+			menu->PrintInstruction();
+			menu->CheckBack(&select);
+			game_setup->End();
+		}
+		if (select == Back)
+		{
+			StartMenu();
+		}
 	}
 	else if (select == Quit)
 	{
