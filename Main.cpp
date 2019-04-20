@@ -7,10 +7,18 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	quit = false;
 	game_setup = new Game_setup(&quit, screenWidth, screenHeight);
 	background = new Sprite(game_setup->GetRenderer(), "image/background.bmp", 0, 0, screenWidth, screenHeight);
-	cloud = new Cloud(game_setup, "image/cloud.png", 200, 450, cloudWidth, cloudHeight);
+	cloud = new Cloud(game_setup, "image/cloud.png", CLOUD_START_X, CLOUD_START_Y, cloudWidth, cloudHeight);
 	food = new Food(game_setup);
+	threat = new Threat(game_setup);
+	for (int i = 0; i < HEALTH_POINT; ++i)
+	{
+		heart[i] = new Sprite(game_setup->GetRenderer(), "image/heart.png", HEART_X + i * HEART_WIDTH, HEART_Y, HEART_WIDTH, HEART_HEIGHT);
+		heart[i]->SetAmountFrame(2, 1);
+		heart[i]->SetCurrentFrame(0);
+		heart[i]->PlayAnimation(0, 0, 0, 0);
+	}
 	score_text = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
-	game_quit = new Sprite(game_setup->GetRenderer(), "image/X.png", 1000, 20, 30, 30);
+	game_quit = new Sprite(game_setup->GetRenderer(), "image/X.png", X_LOCATION_X, X_LOCATION_Y, X_SIZE_WIDTH, X_SIZE_HEIGHT);
 	menu = new Menu(game_setup, "image/menu.jpg");
 	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
 	{
@@ -31,9 +39,12 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 		scoreStr[i] = '0';
 	}
 	timeCheck = SDL_GetTicks();
+	slowTime = SDL_GetTicks();
 	score = 0;
 	playMusic = true;
+	slowDown = false;
 	select = Uncommand;
+	healthPoint = 3;
 }
 
 
@@ -44,6 +55,12 @@ Main::~Main()
 	delete score_text;
 	delete food;
 	delete menu;
+	for (int i = 0; i < HEALTH_POINT; ++i)
+	{
+		delete heart[i];
+	}
+	delete threat;
+	delete game_quit;
 }
 
 void Main::GameLoop()
@@ -57,10 +74,13 @@ void Main::GameLoop()
 		game_setup->Begin();
 		background->Draw();
 		game_quit->Draw();
-		CheckQuit(&select);
+		CheckQuit();
 		UpdateCondition();
+		DrawHeart();
 		cloud->Draw();
 		cloud->Movement();
+		threat->Draw();
+		threat->Movement();
 		food->Draw();
 		food->Movement();
 		IntergerToString(score);
@@ -84,9 +104,37 @@ bool Main::EatenBrain(int i)
 	}
 }
 
-bool Main::MissedBrain(int i)
+bool Main::EatenRottenBrain(int i)
 {
-	if (food->GetBrainY(i) >= 600)
+	if (cloud->GetX() + CLOUD_WIDTH >= threat->GetRottenBrainX(i) && cloud->GetX() <= threat->GetRottenBrainX(i) + BRAIN_WIDTH &&
+		cloud->GetY() + CLOUD_HEIGHT >= threat->GetRottenBrainY(i) && cloud->GetY() + 20 <= threat->GetRottenBrainY(i) + BRAIN_HEIGHT)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Main::EatenVirus(int i)
+{
+	if (cloud->GetX() + CLOUD_WIDTH >= threat->GetVirusX(i) && cloud->GetX() <= threat->GetVirusX(i) + BRAIN_WIDTH &&
+		cloud->GetY() + CLOUD_HEIGHT >= threat->GetVirusY(i) && cloud->GetY() + 20 <= threat->GetVirusY(i) + BRAIN_HEIGHT)
+	{
+		slowDown = true;
+		slowTime = SDL_GetTicks();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Main::Missed(int x)
+{
+	if (x >= 600)
 	{
 		return true;
 	}
@@ -102,9 +150,26 @@ void Main::FirstSetup()
 	srand(time(NULL));
 	for (int i = 0; i < AMOUT_BRAIN; ++i)
 	{
+		threat->RandomSpawnThreat(i);
 		food->RandomSpawnFood(i);
 		food->SpawnFood(i);
 	}
+	for (int i = 0; i < AMOUT_THREAT / 2; ++i)
+	{
+		threat->SpawnRottenBrain(i);
+	}
+	for (int i = 0; i < AMOUT_THREAT / 2; ++i)
+	{
+		threat->SpawnVirus(i);
+	}
+	for (int i = 0; i < HEALTH_POINT; ++i)
+	{
+		heart[i]->SetCurrentFrame(0);
+		heart[i]->PlayAnimation(0, 0, 0, 0);
+	}
+	cloud->SetX(CLOUD_START_X);
+	cloud->SetY(CLOUD_START_Y);
+	healthPoint = HEALTH_POINT;
 }
 
 bool Main::CloudTouchBorder()
@@ -121,6 +186,10 @@ bool Main::CloudTouchBorder()
 
 void Main::UpdateCondition()
 {
+	for (int i = 0; i < HEALTH_POINT - healthPoint; ++i)
+	{
+		BreakHeart(i);
+	}
 	if (CloudTouchBorder()) //if cloud touch border, it stops
 	{
 		cloud->Stop(true);
@@ -138,10 +207,46 @@ void Main::UpdateCondition()
 			cloud->EatBrainChunk();
 			score += SCORE_PER_BRAIN;
 		}
-		else if (MissedBrain(i)) //if brain is missed, respawn
+		else if (Missed(food->GetBrainY(i)))//if brain is missed, respawn
 		{
 			food->RandomSpawnFood(i);
 			food->SpawnFood(i);
+		}
+		else if (i < AMOUT_THREAT / 2 && EatenRottenBrain(i))
+		{
+			healthPoint--;
+			if (healthPoint == 0)
+			{
+				select = Game_Quit;
+			}
+			threat->RandomSpawnThreat(i);
+			threat->SpawnRottenBrain(i);
+		}
+		else if (i < AMOUT_THREAT / 2 && Missed(threat->GetRottenBrainY(i))) //if brain is missed, respawn
+		{
+			threat->RandomSpawnThreat(i);
+			threat->SpawnRottenBrain(i);
+		}
+		else if (i < AMOUT_THREAT / 2 && EatenVirus(i))
+		{
+			threat->RandomSpawnThreat(i);
+			threat->SpawnVirus(i);
+		}
+		else if (i < AMOUT_THREAT / 2 && Missed(threat->GetVirusY(i))) //if brain is missed, respawn
+		{
+			threat->RandomSpawnThreat(i);
+			threat->SpawnVirus(i);
+		}
+		if (slowDown == true)
+		{
+			if (slowTime + SLOW_TIME >= SDL_GetTicks())
+			{
+				cloud->SetCloudSpeed(0.75);
+			}
+			else
+			{
+				cloud->SetCloudSpeed(1);
+			}
 		}
 	}
 	UpdateMusic();
@@ -196,16 +301,16 @@ void Main::UpdateMusic()
 	}
 }
 
-void Main::CheckQuit(Selection* select)
+void Main::CheckQuit()
 {
 	SDL_GetMouseState(&mousePointX, &mousePointY);
-	if (mousePointX >= 1000 && mousePointX <= 1030 && mousePointY >= 20 && mousePointY <= 50)
+	if (mousePointX >= X_LOCATION_X && mousePointX <= X_LOCATION_X + X_SIZE_WIDTH && mousePointY >= X_LOCATION_Y && mousePointY <= X_LOCATION_Y + X_SIZE_HEIGHT)
 	{
 		if (game_setup->GetMainEvent()->type == SDL_MOUSEBUTTONDOWN)
 		{
 			if (game_setup->GetMainEvent()->button.button == SDL_BUTTON_LEFT)
 			{
-				*select = Game_Quit;
+				select = Game_Quit;
 			}
 		}
 	}
@@ -227,6 +332,11 @@ void Main::StartMenu()
 		GameLoop();	
 		if (select == Game_Quit)
 		{
+			score = 0;
+			for (int i = 0; i < 10; ++i)
+			{
+				scoreStr[i] = '0';
+			}
 			Mix_PauseMusic();
 			StartMenu();
 		}
@@ -236,8 +346,8 @@ void Main::StartMenu()
 		while (game_setup->GetMainEvent()->type != SDL_QUIT && select != Back)
 		{
 			game_setup->Begin();
+			menu->CheckInstructionCommand(&select);
 			menu->PrintInstruction();
-			menu->CheckBack(&select);
 			game_setup->End();
 		}
 		if (select == Back)
@@ -249,4 +359,18 @@ void Main::StartMenu()
 	{
 		quit = true;
 	}
+}
+
+void Main::DrawHeart()
+{
+	for (int i = 0; i < HEALTH_POINT; ++i)
+	{
+		heart[i]->Draw();
+	}
+}
+
+void Main::BreakHeart(int i)
+{
+	heart[i]->SetCurrentFrame(1);
+	heart[i]->PlayAnimation(1, 1, 0, 0);
 }
