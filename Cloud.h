@@ -14,6 +14,7 @@ public:
 	void SetX(int x);
 	void SetY(int y);
 	void Stop(bool stop);
+	void SetCloudSpeed(double level);
 	void EatBrainChunk();
 private:
 	Sprite* cloud;
@@ -25,5 +26,6 @@ private:
 	bool preLeft;
 	bool preRight;
 	bool stop;
+	int cloudSpeed;
 };
 
