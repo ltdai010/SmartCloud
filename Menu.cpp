@@ -10,15 +10,18 @@ Menu::Menu(Game_setup *passed_game_setup, std::string path)
 	instruction = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
 	highScore = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
 	quit = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
-	instructionText1 = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
-	instructionText2 = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
-	instructionText3 = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
+	instructionPage[0] = new Sprite(game_setup->GetRenderer(), "image/instruction-06.jpg", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	instructionPage[1] = new Sprite(game_setup->GetRenderer(), "image/instruction-09.jpg", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	instructionPage[2] = new Sprite(game_setup->GetRenderer(), "image/instruction-11.jpg", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	instructionPage[3] = new Sprite(game_setup->GetRenderer(), "image/instruction-10.jpg", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	back = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
-	instructionBackground = new Sprite(game_setup->GetRenderer(), "image/instructor_background-06.png", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	next = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
 	start->LoadText("Start game");
 	instruction->LoadText("Instruction");
 	highScore->LoadText("High score");
 	quit->LoadText("Quit");
+	back->LoadText("Back");
+	next->LoadText("Next");
 	start->SetSize(START_TEXT_WIDTH, START_TEXT_HEIGHT);
 	instruction->SetSize(START_TEXT_WIDTH, START_TEXT_HEIGHT);
 	highScore->SetSize(START_TEXT_WIDTH, START_TEXT_HEIGHT);
@@ -29,17 +32,15 @@ Menu::Menu(Game_setup *passed_game_setup, std::string path)
 	quit->SetLocation(MENU_TEXT_X, 350);
 	mousePointX = 0;
 	mousePointY = 0;
-	instructionText1->SetSize(600, 100);
-	instructionText2->SetSize(400, 100);
-	instructionText3->SetSize(600, 100);
-	instructionText1->SetColor(0, 255, 255);
-	instructionText2->SetColor(0, 255, 255);
-	instructionText3->SetColor(0, 255, 255);
-	instructionText1->SetLocation(100, 100);
-	instructionText2->SetLocation(100, 200);
-	instructionText3->SetLocation(100, 300);
+	back->SetColor(69, 29, 220);
+	next->SetColor(69, 29, 220);
 	back->SetSize(100, 100);
-	back->SetLocation(800, 400);
+	back->SetLocation(750, 500);
+	next->SetSize(100, 100);
+	next->SetLocation(900, 500);
+	currentPage = 0;
+	nextPage = false;
+	backPage = false;
 }
 
 
@@ -50,9 +51,12 @@ Menu::~Menu()
 	delete instruction;
 	delete highScore;
 	delete quit;
-	delete instructionText1;
-	delete instructionText2;
-	delete instructionText3;
+	delete back;
+	delete next;
+	delete instructionPage[0];
+	delete instructionPage[1];
+	delete instructionPage[2];
+	delete instructionPage[3];
 }
 
 void Menu::Draw()
@@ -137,35 +141,63 @@ void Menu::CheckCommand(Selection *select)
 	}
 }
 
-void Menu::CheckBack(Selection* select)
+void Menu::CheckInstructionCommand(Selection* select)
 {
 	SDL_GetMouseState(&mousePointX, &mousePointY);
-	if (mousePointX >= 800 && mousePointX <= 900 && mousePointY >= 400 && mousePointY <= 500)
+	if (mousePointX >= 750 && mousePointX <= 850 && mousePointY >= 500 && mousePointY <= 600)
 	{
-		back->SetColor(255, 0, 0);
+		back->SetColor(140, 120, 226);
 		if (game_setup->GetMainEvent()->type == SDL_MOUSEBUTTONDOWN)
 		{
-			if (game_setup->GetMainEvent()->button.button == SDL_BUTTON_LEFT)
+			if (game_setup->GetMainEvent()->button.button == SDL_BUTTON_LEFT && !backPage)
 			{
-				*select = Back;
+				if (currentPage == 0)
+				{
+					*select = Back;
+				}
+				else
+				{
+					backPage = true;
+					currentPage--;
+				}
 			}
 		}
 	}
 	else
 	{
-		back->SetColor(0, 0, 0);
+		back->SetColor(69, 29, 220);
+	}
+	if (mousePointX >= 900 && mousePointX <= 1000 && mousePointY >= 500 && mousePointY <= 600)
+	{
+		next->SetColor(140, 120, 226);
+		if (game_setup->GetMainEvent()->type == SDL_MOUSEBUTTONDOWN)
+		{
+			if (game_setup->GetMainEvent()->button.button == SDL_BUTTON_LEFT && currentPage < 3 && !nextPage)
+			{
+				nextPage = true;
+				++currentPage;
+			}
+		}
+	}
+	else
+	{
+		next->SetColor(69, 29, 220);
+	}
+	if (game_setup->GetMainEvent()->type == SDL_MOUSEBUTTONUP)
+	{
+		if (game_setup->GetMainEvent()->button.button == SDL_BUTTON_LEFT)
+		{
+			nextPage = false;
+			backPage = false;
+		}
 	}
 }
 
 void Menu::PrintInstruction()
 {
-	instructionBackground->Draw();
-	instructionText1->LoadText("- Press A to move left, D to move right");
-	instructionText2->LoadText("- Each Brain gains 10 score");
-	instructionText3->LoadText("- If you hit the rotten brain 3 times, Game over!");
-	instructionText1->RenderText();
-	instructionText2->RenderText();
-	instructionText3->RenderText();
+	instructionPage[currentPage]->Draw();
 	back->LoadText("Back");
+	next->LoadText("Next");
 	back->RenderText();
+	next->RenderText();
 }
