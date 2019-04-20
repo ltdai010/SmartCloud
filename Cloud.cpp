@@ -24,6 +24,7 @@ Cloud::Cloud(Game_setup *passed_game_setup, std::string path, int x, int y, int 
 	moveRight = false;
 	preLeft = true;
 	preRight = false;
+	cloudSpeed = ClOUD_SPEED;
 }
 
 
@@ -115,12 +116,12 @@ void Cloud::UpdateMovement()
 {
 	if (moveLeft)
 	{
-		cloud->SetX(cloud->GetX() - ClOUD_SPEED);
+		cloud->SetX(cloud->GetX() - cloudSpeed);
 		std::cout << "moving left" << std::endl;
 	}
 	if (moveRight)
 	{
-		cloud->SetX(cloud->GetX() + ClOUD_SPEED);
+		cloud->SetX(cloud->GetX() + cloudSpeed);
 		std::cout << "moving right" << std::endl;
 	}
 }
@@ -172,4 +173,9 @@ void Cloud::EatBrainChunk()
 		std::cout << Mix_GetError() << std::endl;
 		std::cout << "failed to play treasure sound" << std::endl;
 	}
+}
+
+void Cloud::SetCloudSpeed(double level)
+{
+	cloudSpeed = ClOUD_SPEED * level;
 }
