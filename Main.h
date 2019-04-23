@@ -20,8 +20,8 @@ public:
 	void UpdateMusic();
 	void StartMenu();
 	void EatBook();
-	void CheckGameOverCommand(Selection *select);
-	void DeleteZeroAtHead();
+	void CheckGameOverCommand();
+	void CustomizeScoreStr();
 private:
 	Game_setup *game_setup;
 	Game_Text *score_text;
