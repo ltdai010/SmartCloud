@@ -6,7 +6,7 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 {
 	quit = false;
 	game_setup = new Game_setup(&quit, screenWidth, screenHeight);
-	background = new Sprite(game_setup->GetRenderer(), "image/background.bmp", 0, 0, screenWidth, screenHeight);
+	background = new Sprite(game_setup->GetRenderer(), "image/background4.png", 0, 0, screenWidth, screenHeight);
 	cloud = new Cloud(game_setup, "image/cloud.png", CLOUD_START_X, CLOUD_START_Y, cloudWidth, cloudHeight);
 	food = new Food(game_setup);
 	threat = new Threat(game_setup);
@@ -18,7 +18,13 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 		heart[i]->PlayAnimation(0, 0, 0, 0);
 	}
 	score_text = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
+	// game_quit là để khi người chơi nhấn vô thì nó sẽ trở về màn hình menu
 	game_quit = new Sprite(game_setup->GetRenderer(), "image/X.png", X_LOCATION_X, X_LOCATION_Y, X_SIZE_WIDTH, X_SIZE_HEIGHT);
+	game_over = new Sprite(game_setup->GetRenderer(), "image/game_over.png", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	back_menu = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
+	back_menu->SetColor(69, 29, 220);
+	back_menu->SetSize(100, 100);
+	back_menu->SetLocation(900, 500);
 	menu = new Menu(game_setup, "image/menu.jpg");
 	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
 	{
@@ -26,7 +32,7 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 		std::cout << "failed to open sound device" << std::endl;
 	}
 	backgroundSound = Mix_LoadMUS("audio/background.mp3");
-	if (backgroundSound == NULL )
+	if (backgroundSound == NULL)
 	{
 		std::cout << Mix_GetError() << std::endl;
 		std::cout << "failed to load sound" << std::endl;
@@ -46,8 +52,6 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	select = Uncommand;
 	healthPoint = 3;
 }
-
-
 Main::~Main()
 {
 	delete background;
@@ -61,6 +65,8 @@ Main::~Main()
 	}
 	delete threat;
 	delete game_quit;
+	delete back_menu;
+	delete game_over;
 }
 
 void Main::GameLoop()
@@ -90,11 +96,10 @@ void Main::GameLoop()
 	}
 }
 
-
 bool Main::EatenBrain(int i)
 {
-	if (cloud->GetX() + CLOUD_WIDTH >= food->GetBrainX(i) && cloud->GetX() <= food->GetBrainX(i) + BRAIN_WIDTH && 
-		cloud->GetY() + CLOUD_HEIGHT  >= food->GetBrainY(i) && cloud->GetY() + 20 <= food->GetBrainY(i) + BRAIN_HEIGHT)
+	if (cloud->GetX() + CLOUD_WIDTH >= food->GetBrainX(i) && cloud->GetX() <= food->GetBrainX(i) + BRAIN_WIDTH &&
+		cloud->GetY() + CLOUD_HEIGHT >= food->GetBrainY(i) && cloud->GetY() + 20 <= food->GetBrainY(i) + BRAIN_HEIGHT)
 	{
 		return true;
 	}
@@ -329,7 +334,7 @@ void Main::StartMenu()
 	}
 	if (select == Start)
 	{
-		GameLoop();	
+		GameLoop();
 		if (select == Game_Quit)
 		{
 			score = 0;
@@ -338,6 +343,15 @@ void Main::StartMenu()
 				scoreStr[i] = '0';
 			}
 			Mix_PauseMusic();
+			while (game_setup->GetMainEvent()->type != SDL_QUIT && select != Back)
+			{
+				game_setup->Begin();
+				game_over->Draw();
+				CheckGameOverCommand(&select);
+				back_menu->LoadText("Back");
+				back_menu->RenderText();
+				game_setup->End();
+			}
 			StartMenu();
 		}
 	}
@@ -373,4 +387,20 @@ void Main::BreakHeart(int i)
 {
 	heart[i]->SetCurrentFrame(1);
 	heart[i]->PlayAnimation(1, 1, 0, 0);
+}
+void Main::CheckGameOverCommand(Selection *select)
+{
+	SDL_GetMouseState(&mousePointX, &mousePointY);
+	if (mousePointX >= 900 && mousePointX <= 1000 && mousePointY >= 500 && mousePointY <= 600)
+	{
+		back_menu->SetColor(140, 120, 226);
+		if (game_setup->GetMainEvent()->type == SDL_MOUSEBUTTONDOWN)
+		{
+			*select = Back;
+		}
+	}
+	else
+	{
+		back_menu->SetColor(69, 29, 220);
+	}
 }
