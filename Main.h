@@ -21,6 +21,7 @@ public:
 	void StartMenu();
 	void EatBook();
 	void CheckGameOverCommand(Selection *select);
+	void DeleteZeroAtHead();
 private:
 	Game_setup *game_setup;
 	Game_Text *score_text;
