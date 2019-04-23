@@ -404,3 +404,24 @@ void Main::CheckGameOverCommand(Selection *select)
 		back_menu->SetColor(69, 29, 220);
 	}
 }
+void Main::DeleteZeroAtHead()
+{
+	int tempLength = 10;
+	for (int i = 0; i < tempLength - 1; i++)
+	{
+		if (scoreStr[i] == '0')
+		{
+			for (int j = i; j < tempLength; j++)
+			{
+				scoreStr[j] = scoreStr[j + 1];
+			}
+			i--;
+			tempLength--;
+			scoreStr[tempLength] = '\0';
+		}
+		else
+		{
+			break;
+		}
+	}
+}
