@@ -20,6 +20,7 @@ public:
 	void UpdateMusic();
 	void StartMenu();
 	void EatBook();
+	void CheckGameOverCommand(Selection *select);
 private:
 	Game_setup *game_setup;
 	Game_Text *score_text;
@@ -42,5 +43,7 @@ private:
 	int mousePointX;
 	int mousePointY;
 	int healthPoint;
+	Sprite *game_over;
+	Game_Text *back_menu;
 };
 
