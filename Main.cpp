@@ -6,7 +6,7 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 {
 	quit = false;
 	game_setup = new Game_setup(&quit, screenWidth, screenHeight);
-	background = new Sprite(game_setup->GetRenderer(), "image/background4.png", 0, 0, screenWidth, screenHeight);
+	background = new Sprite(game_setup->GetRenderer(), "image/background.bmp", 0, 0, screenWidth, screenHeight);
 	cloud = new Cloud(game_setup, "image/cloud.png", CLOUD_START_X, CLOUD_START_Y, cloudWidth, cloudHeight);
 	food = new Food(game_setup);
 	threat = new Threat(game_setup);
@@ -18,7 +18,6 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 		heart[i]->PlayAnimation(0, 0, 0, 0);
 	}
 	score_text = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
-	// game_quit là để khi người chơi nhấn vô thì nó sẽ trở về màn hình menu
 	game_quit = new Sprite(game_setup->GetRenderer(), "image/X.png", X_LOCATION_X, X_LOCATION_Y, X_SIZE_WIDTH, X_SIZE_HEIGHT);
 	game_over = new Sprite(game_setup->GetRenderer(), "image/game_over.png", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	back_menu = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
@@ -337,21 +336,25 @@ void Main::StartMenu()
 		GameLoop();
 		if (select == Game_Quit)
 		{
+			Mix_PauseMusic();
+			CustomizeScoreStr();
+			while (game_setup->GetMainEvent()->type != SDL_QUIT && select != Back)
+			{
+				game_setup->Begin();
+				game_over->Draw();
+				CheckGameOverCommand();
+				back_menu->LoadText("Back");
+				score_text->RenderText();
+				back_menu->RenderText();
+				game_setup->End();
+			}
 			score = 0;
 			for (int i = 0; i < 10; ++i)
 			{
 				scoreStr[i] = '0';
 			}
-			Mix_PauseMusic();
-			while (game_setup->GetMainEvent()->type != SDL_QUIT && select != Back)
-			{
-				game_setup->Begin();
-				game_over->Draw();
-				CheckGameOverCommand(&select);
-				back_menu->LoadText("Back");
-				back_menu->RenderText();
-				game_setup->End();
-			}
+			score_text->SetSize(150, 50);
+			score_text->SetLocation(800, 50);
 			StartMenu();
 		}
 	}
@@ -388,7 +391,7 @@ void Main::BreakHeart(int i)
 	heart[i]->SetCurrentFrame(1);
 	heart[i]->PlayAnimation(1, 1, 0, 0);
 }
-void Main::CheckGameOverCommand(Selection *select)
+void Main::CheckGameOverCommand()
 {
 	SDL_GetMouseState(&mousePointX, &mousePointY);
 	if (mousePointX >= 900 && mousePointX <= 1000 && mousePointY >= 500 && mousePointY <= 600)
@@ -396,7 +399,7 @@ void Main::CheckGameOverCommand(Selection *select)
 		back_menu->SetColor(140, 120, 226);
 		if (game_setup->GetMainEvent()->type == SDL_MOUSEBUTTONDOWN)
 		{
-			*select = Back;
+			select = Back;
 		}
 	}
 	else
@@ -404,24 +407,25 @@ void Main::CheckGameOverCommand(Selection *select)
 		back_menu->SetColor(69, 29, 220);
 	}
 }
-void Main::DeleteZeroAtHead()
+
+void Main::CustomizeScoreStr()
 {
-	int tempLength = 10;
-	for (int i = 0; i < tempLength - 1; i++)
+	int length = 1;
+	std::string temp;
+	for (int i = 0; i < 10; ++i)
 	{
-		if (scoreStr[i] == '0')
+		if (scoreStr[i] != '0')
 		{
-			for (int j = i; j < tempLength; j++)
-			{
-				scoreStr[j] = scoreStr[j + 1];
-			}
-			i--;
-			tempLength--;
-			scoreStr[tempLength] = '\0';
-		}
-		else
-		{
+			length = 10 - i;
 			break;
 		}
 	}
+	for (int i = 10 - length; i < 10; ++i)
+	{
+		temp = temp + scoreStr[i];
+	}
+	std::cout << "Score:" << temp << std::endl;
+	score_text->SetSize(30 * length, 100);
+	score_text->SetLocation(700, 270);
+	score_text->LoadText(temp);
 }
