@@ -6,7 +6,7 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 {
 	quit = false;
 	game_setup = new Game_setup(&quit, screenWidth, screenHeight);
-	background = new Sprite(game_setup->GetRenderer(), "image/background.bmp", 0, 0, screenWidth, screenHeight);
+	background = new Sprite(game_setup->GetRenderer(), "image/background4.png", 0, 0, screenWidth, screenHeight);
 	cloud = new Cloud(game_setup, "image/cloud.png", CLOUD_START_X, CLOUD_START_Y, cloudWidth, cloudHeight);
 	food = new Food(game_setup);
 	threat = new Threat(game_setup);
