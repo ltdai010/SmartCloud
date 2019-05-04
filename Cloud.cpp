@@ -77,13 +77,11 @@ void Cloud::UpdateControl()
 			moveLeft = true;
 			preLeft = false;
 			preRight = false;
-			std::cout << "a was pressed" << std::endl;
 			break;
 		case SDLK_d:
 			moveRight = true;
 			preLeft = false;
 			preRight = false;
-			std::cout << "d was pressed" << std::endl;
 			break;
 		default:
 			break;
@@ -117,12 +115,10 @@ void Cloud::UpdateMovement()
 	if (moveLeft)
 	{
 		cloud->SetX(cloud->GetX() - cloudSpeed);
-		std::cout << "moving left" << std::endl;
 	}
 	if (moveRight)
 	{
 		cloud->SetX(cloud->GetX() + cloudSpeed);
-		std::cout << "moving right" << std::endl;
 	}
 }
 
@@ -178,4 +174,10 @@ void Cloud::EatBrainChunk()
 void Cloud::SetCloudSpeed(double level)
 {
 	cloudSpeed = ClOUD_SPEED * level;
+}
+
+void Cloud::SetSize(int w, int h)
+{
+	cloud->SetWidth(w);
+	cloud->SetHeight(h);
 }
