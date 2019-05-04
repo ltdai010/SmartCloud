@@ -6,10 +6,12 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 {
 	quit = false;
 	game_setup = new Game_setup(&quit, screenWidth, screenHeight);
-	background = new Sprite(game_setup->GetRenderer(), "image/background4.png", 0, 0, screenWidth, screenHeight);
+	background = new Sprite(game_setup->GetRenderer(), "image/background.bmp", 0, 0, screenWidth, screenHeight);
 	cloud = new Cloud(game_setup, "image/cloud.png", CLOUD_START_X, CLOUD_START_Y, cloudWidth, cloudHeight);
 	food = new Food(game_setup);
 	threat = new Threat(game_setup);
+	saveScore = new SaveScore("save/save_game.txt");
+	scorePerBrain = SCORE_PER_BRAIN;
 	for (int i = 0; i < HEALTH_POINT; ++i)
 	{
 		heart[i] = new Sprite(game_setup->GetRenderer(), "image/heart.png", HEART_X + i * HEART_WIDTH, HEART_Y, HEART_WIDTH, HEART_HEIGHT);
@@ -18,6 +20,9 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 		heart[i]->PlayAnimation(0, 0, 0, 0);
 	}
 	score_text = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
+	high_score_text = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
+	score_tittle = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
+	high_score_tittle = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
 	game_quit = new Sprite(game_setup->GetRenderer(), "image/X.png", X_LOCATION_X, X_LOCATION_Y, X_SIZE_WIDTH, X_SIZE_HEIGHT);
 	game_over = new Sprite(game_setup->GetRenderer(), "image/game_over.png", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	back_menu = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
@@ -39,17 +44,32 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	score_text->SetColor(0, 0, 0);
 	score_text->SetSize(150, 50);
 	score_text->SetLocation(800, 50);
-	for (int i = 0; i < 10; ++i)
+	high_score_text->SetColor(0, 0, 0);
+	high_score_text->SetSize(150, 50);
+	high_score_text->SetLocation(800, 100);
+	score_tittle->SetColor(0, 0, 0);
+	score_tittle->SetSize(150, 50);
+	score_tittle->SetLocation(650, 50);
+	high_score_tittle->SetColor(0, 0, 0);
+	high_score_tittle->SetSize(150, 50);
+	high_score_tittle->SetLocation(650, 100);
+	for (int i = 0; i < 9; ++i)
 	{
+		hiScoreStr[i] = '0';
 		scoreStr[i] = '0';
 	}
+	scoreStr[9] = '\0';
+	hiScoreStr[9] = '\0';
 	timeCheck = SDL_GetTicks();
 	slowTime = SDL_GetTicks();
 	score = 0;
 	playMusic = true;
 	slowDown = false;
 	select = Uncommand;
-	healthPoint = 3;
+	healthPoint = HEALTH_POINT;
+	score_tittle->LoadText("Your score:");
+	high_score_tittle->LoadText("High score:");
+	saveScore->ReadScore();
 }
 Main::~Main()
 {
@@ -66,6 +86,9 @@ Main::~Main()
 	delete game_quit;
 	delete back_menu;
 	delete game_over;
+	delete score_tittle;
+	delete high_score_tittle;
+	delete saveScore;
 }
 
 void Main::GameLoop()
@@ -88,17 +111,35 @@ void Main::GameLoop()
 		threat->Movement();
 		food->Draw();
 		food->Movement();
-		IntergerToString(score);
+		score_tittle->RenderText();
+		high_score_tittle->RenderText();
+		IntergerToString(score, scoreStr);
+		IntergerToString(saveScore->GetScore(), hiScoreStr);
 		score_text->LoadText(scoreStr);
 		score_text->RenderText();
+		high_score_text->LoadText(hiScoreStr);
+		high_score_text->RenderText();
 		game_setup->End();
 	}
 }
 
 bool Main::EatenBrain(int i)
 {
-	if (cloud->GetX() + CLOUD_WIDTH >= food->GetBrainX(i) && cloud->GetX() <= food->GetBrainX(i) + BRAIN_WIDTH &&
-		cloud->GetY() + CLOUD_HEIGHT >= food->GetBrainY(i) && cloud->GetY() + 20 <= food->GetBrainY(i) + BRAIN_HEIGHT)
+	if (cloud->GetX() + hitboxW >= food->GetBrainX(i) && cloud->GetX() <= food->GetBrainX(i) + BRAIN_WIDTH &&
+		cloud->GetY() + hitboxH >= food->GetBrainY(i) && cloud->GetY() + 20 <= food->GetBrainY(i) + BRAIN_HEIGHT)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Main::EatenBook()
+{
+	if (cloud->GetX() + hitboxW >= food->GetBookX() && cloud->GetX() <= food->GetBookX() + BRAIN_WIDTH &&
+		cloud->GetY() + hitboxH >= food->GetBookY() && cloud->GetY() + 20 <= food->GetBookY() + BRAIN_HEIGHT)
 	{
 		return true;
 	}
@@ -110,8 +151,8 @@ bool Main::EatenBrain(int i)
 
 bool Main::EatenRottenBrain(int i)
 {
-	if (cloud->GetX() + CLOUD_WIDTH >= threat->GetRottenBrainX(i) && cloud->GetX() <= threat->GetRottenBrainX(i) + BRAIN_WIDTH &&
-		cloud->GetY() + CLOUD_HEIGHT >= threat->GetRottenBrainY(i) && cloud->GetY() + 20 <= threat->GetRottenBrainY(i) + BRAIN_HEIGHT)
+	if (cloud->GetX() + hitboxW >= threat->GetRottenBrainX(i) && cloud->GetX() <= threat->GetRottenBrainX(i) + BRAIN_WIDTH &&
+		cloud->GetY() + hitboxH >= threat->GetRottenBrainY(i) && cloud->GetY() + 20 <= threat->GetRottenBrainY(i) + BRAIN_HEIGHT)
 	{
 		return true;
 	}
@@ -123,8 +164,8 @@ bool Main::EatenRottenBrain(int i)
 
 bool Main::EatenVirus(int i)
 {
-	if (cloud->GetX() + CLOUD_WIDTH >= threat->GetVirusX(i) && cloud->GetX() <= threat->GetVirusX(i) + BRAIN_WIDTH &&
-		cloud->GetY() + CLOUD_HEIGHT >= threat->GetVirusY(i) && cloud->GetY() + 20 <= threat->GetVirusY(i) + BRAIN_HEIGHT)
+	if (cloud->GetX() + hitboxW >= threat->GetVirusX(i) && cloud->GetX() <= threat->GetVirusX(i) + BRAIN_WIDTH &&
+		cloud->GetY() + hitboxH >= threat->GetVirusY(i) && cloud->GetY() + 20 <= threat->GetVirusY(i) + BRAIN_HEIGHT && !invincible)
 	{
 		slowDown = true;
 		slowTime = SDL_GetTicks();
@@ -136,9 +177,9 @@ bool Main::EatenVirus(int i)
 	}
 }
 
-bool Main::Missed(int x)
+bool Main::Missed(int y)
 {
-	if (x >= 600)
+	if (y >= 600)
 	{
 		return true;
 	}
@@ -152,12 +193,20 @@ void Main::FirstSetup()
 {
 	timeCheck = SDL_GetTicks();
 	srand(time(NULL));
-	for (int i = 0; i < AMOUT_BRAIN; ++i)
+	for (int i = 0; i < AMOUT_BRAIN + 1; ++i)
 	{
-		threat->RandomSpawnThreat(i);
+		if (i < AMOUT_THREAT)
+		{
+			threat->RandomSpawnThreat(i);
+		}
 		food->RandomSpawnFood(i);
-		food->SpawnFood(i);
+		if (i < AMOUT_BRAIN)
+		{
+			food->SpawnBrain(i);
+		}
 	}
+	food->RandomBook();
+	food->SpawnBook();
 	for (int i = 0; i < AMOUT_THREAT / 2; ++i)
 	{
 		threat->SpawnRottenBrain(i);
@@ -174,6 +223,12 @@ void Main::FirstSetup()
 	cloud->SetX(CLOUD_START_X);
 	cloud->SetY(CLOUD_START_Y);
 	healthPoint = HEALTH_POINT;
+	cloud->SetSize(CLOUD_WIDTH, CLOUD_HEIGHT);
+	cloud->SetCloudSpeed(1);
+	hitboxW = CLOUD_WIDTH;
+	hitboxH = CLOUD_HEIGHT;
+	scorePerBrain = SCORE_PER_BRAIN;
+	invincible = false;
 }
 
 bool Main::CloudTouchBorder()
@@ -190,10 +245,6 @@ bool Main::CloudTouchBorder()
 
 void Main::UpdateCondition()
 {
-	for (int i = 0; i < HEALTH_POINT - healthPoint; ++i)
-	{
-		BreakHeart(i);
-	}
 	if (CloudTouchBorder()) //if cloud touch border, it stops
 	{
 		cloud->Stop(true);
@@ -202,22 +253,36 @@ void Main::UpdateCondition()
 	{
 		cloud->Stop(false);
 	}
+	if (EatenBook())
+	{
+		SetCloudCondition();
+		food->RandomSpawnFood(AMOUT_BRAIN);
+		food->SpawnBook();
+		food->RandomBook();
+	}
+	else if (Missed(food->GetBookY()))
+	{
+		food->RandomSpawnFood(AMOUT_BRAIN);
+		food->RandomBook();
+		food->SpawnBook();
+	}
 	for (int i = 0; i < AMOUT_BRAIN; ++i)
 	{
 		if (EatenBrain(i)) //if brain is eaten, respawn, +10 score
 		{
 			food->RandomSpawnFood(i);
-			food->SpawnFood(i);
+			food->SpawnBrain(i);
 			cloud->EatBrainChunk();
-			score += SCORE_PER_BRAIN;
+			score += scorePerBrain;
 		}
 		else if (Missed(food->GetBrainY(i)))//if brain is missed, respawn
 		{
 			food->RandomSpawnFood(i);
-			food->SpawnFood(i);
+			food->SpawnBrain(i);
 		}
-		else if (i < AMOUT_THREAT / 2 && EatenRottenBrain(i))
+		else if (i < AMOUT_THREAT / 2 && EatenRottenBrain(i) && !invincible)
 		{
+			BreakHeart(HEALTH_POINT - healthPoint);
 			healthPoint--;
 			if (healthPoint == 0)
 			{
@@ -231,7 +296,7 @@ void Main::UpdateCondition()
 			threat->RandomSpawnThreat(i);
 			threat->SpawnRottenBrain(i);
 		}
-		else if (i < AMOUT_THREAT / 2 && EatenVirus(i))
+		else if (i < AMOUT_THREAT / 2 && EatenVirus(i) && !invincible)
 		{
 			threat->RandomSpawnThreat(i);
 			threat->SpawnVirus(i);
@@ -252,6 +317,17 @@ void Main::UpdateCondition()
 				cloud->SetCloudSpeed(1);
 			}
 		}
+		if (doubleScoreCoolDown + SLOW_TIME <= SDL_GetTicks())
+		{
+			scorePerBrain = SCORE_PER_BRAIN;
+		}
+		if (bigSizeCoolDown + SLOW_TIME <= SDL_GetTicks())
+		{
+			cloud->SetSize(CLOUD_WIDTH, CLOUD_HEIGHT);
+			hitboxH = CLOUD_WIDTH;
+			hitboxW = CLOUD_HEIGHT;
+			invincible = false;
+		}
 	}
 	UpdateMusic();
 	if (playMusic)
@@ -264,12 +340,39 @@ void Main::UpdateCondition()
 	}
 }
 
-void Main::IntergerToString(int passed_score)
+void Main::SetCloudCondition()
 {
-	int i = 9;
+	bookType = food->GetBookType();
+	if (bookType == SIZE)
+	{
+		cloud->SetSize(CLOUD_WIDTH * 2, CLOUD_HEIGHT * 2);
+		hitboxH = CLOUD_WIDTH * 2;
+		hitboxW = CLOUD_HEIGHT * 2;
+		invincible = true;
+		bigSizeCoolDown = SDL_GetTicks();
+	}
+	else if (bookType == LIFE)
+	{
+		if (healthPoint < 3)
+		{
+			++healthPoint;
+			ReviveHeart(HEALTH_POINT - healthPoint);
+		}
+	}
+	else if (bookType == DOUBLE_SCORE)
+	{
+		doubleScoreCoolDown = SDL_GetTicks();
+		scorePerBrain = SCORE_PER_BRAIN * 2;
+	}
+}
+
+void Main::IntergerToString(int passed_score, char string[])
+{
+	int i = 8;
+	string[9] = '\0';
 	while (passed_score > 0)
 	{
-		scoreStr[i] = passed_score % 10 + 48;
+		string[i] = passed_score % 10 + 48;
 		passed_score = passed_score / 10;
 		--i;
 	}
@@ -348,6 +451,11 @@ void Main::StartMenu()
 				back_menu->RenderText();
 				game_setup->End();
 			}
+			if (HighScore())
+			{
+				saveScore->SetScore(score);
+				saveScore->WriteScore();
+			}
 			score = 0;
 			for (int i = 0; i < 10; ++i)
 			{
@@ -391,6 +499,13 @@ void Main::BreakHeart(int i)
 	heart[i]->SetCurrentFrame(1);
 	heart[i]->PlayAnimation(1, 1, 0, 0);
 }
+
+void Main::ReviveHeart(int i)
+{
+	heart[i]->SetCurrentFrame(0);
+	heart[i]->PlayAnimation(0, 0, 0, 0);
+}
+
 void Main::CheckGameOverCommand()
 {
 	SDL_GetMouseState(&mousePointX, &mousePointY);
@@ -412,15 +527,15 @@ void Main::CustomizeScoreStr()
 {
 	int length = 1;
 	std::string temp;
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < 9; ++i)
 	{
 		if (scoreStr[i] != '0')
 		{
-			length = 10 - i;
+			length = 9 - i;
 			break;
 		}
 	}
-	for (int i = 10 - length; i < 10; ++i)
+	for (int i = 9 - length; i < 9; ++i)
 	{
 		temp = temp + scoreStr[i];
 	}
@@ -428,4 +543,17 @@ void Main::CustomizeScoreStr()
 	score_text->SetSize(30 * length, 100);
 	score_text->SetLocation(700, 270);
 	score_text->LoadText(temp);
+}
+
+bool Main::HighScore()
+{
+	saveScore->ReadScore();
+	if (score > saveScore->GetScore())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
