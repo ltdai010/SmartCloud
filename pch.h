@@ -11,7 +11,7 @@
 #define SCREEN_WIDTH 1081
 #define SCREEN_HEIGHT 600
 #define AMOUT_BRAIN 10
-#define AMOUT_THREAT 10
+#define AMOUT_THREAT 6
 #define CLOUD_START_X 200
 #define CLOUD_START_Y 450
 #define CLOUD_WIDTH 100
@@ -45,8 +45,8 @@
 enum BookType
 {
 	SIZE,
-	MAGNET,
-	DOUBLESCORE
+	LIFE,
+	DOUBLE_SCORE
 };
 enum Selection
 {
@@ -66,9 +66,12 @@ enum Selection
 #include <string>
 #include <time.h>
 #include <cstdlib>
+#include <ostream>
+#include <fstream>
 #include "Game_setup.h"
 #include "Sprite.h"
 #include "Game_Text.h"
+#include "SaveScore.h"
 #include "Cloud.h"
 #include "Brain.h"
 #include "Book.h"
