@@ -13,6 +13,7 @@ public:
 	int GetY();
 	void SetX(int x);
 	void SetY(int y);
+	void SetSize(int w, int h);
 	void Stop(bool stop);
 	void SetCloudSpeed(double level);
 	void EatBrainChunk();
