@@ -85,3 +85,13 @@ void Sprite::SetY(int y)
 {
 	rect.y = y;
 }
+
+void Sprite::SetWidth(int w)
+{
+	rect.w = w;
+}
+
+void Sprite::SetHeight(int h)
+{
+	rect.h = h;
+}
