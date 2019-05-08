@@ -20,7 +20,6 @@ public:
 	void CheckQuit();
 	void IntergerToString(int passed_score, char string[]);
 	bool CloudTouchBorder();
-	void PlayMusic(Mix_Music* music);
 	void UpdateMusic();
 	void StartMenu();
 	void CheckGameOverCommand();
@@ -38,9 +37,15 @@ private:
 	Food *food;
 	Menu *menu;
 	Threat *threat;
-	Mix_Music *backgroundSound;
+	Game_music *backgroundSound;
 	Sprite *game_over;
+	Sprite *game_over_texture;
 	Game_Text *back_menu;
+	Game_music *click_sound;
+	Game_music *game_over_sound;
+	Game_music *bigger_sound;
+	Game_music *revive_sound;
+	Game_music *double_score_sound;
 	SaveScore *saveScore;
 	bool quit;
 	bool invincible;
@@ -62,4 +67,3 @@ private:
 	int mousePointY;
 	int healthPoint;
 };
-
