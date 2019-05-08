@@ -20,7 +20,7 @@ public:
 private:
 	Sprite* cloud;
 	Game_setup* game_setup;
-	Mix_Chunk *eatBrain;
+	Game_music* eatBrain;
 	long long int timeCheck;
 	bool moveLeft;
 	bool moveRight;
