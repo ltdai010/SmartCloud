@@ -6,7 +6,11 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 {
 	quit = false;
 	game_setup = new Game_setup(&quit, screenWidth, screenHeight);
-	background = new Sprite(game_setup->GetRenderer(), "image/background.bmp", 0, 0, screenWidth, screenHeight);
+	background = new Sprite(game_setup->GetRenderer(), "image/background4.png", 0, 0, screenWidth, screenHeight);
+	game_over_texture = new Sprite(game_setup->GetRenderer(), "image/game_over_texture.png", 0, 0, screenWidth, screenHeight);
+	game_over_sound = new Game_music("audio/game_over.wav", AUDIO);
+	game_over_texture->SetBlendMode(SDL_BLENDMODE_BLEND);
+	game_over_texture->SetAlpha(191);
 	cloud = new Cloud(game_setup, "image/cloud.png", CLOUD_START_X, CLOUD_START_Y, cloudWidth, cloudHeight);
 	food = new Food(game_setup);
 	threat = new Threat(game_setup);
@@ -30,17 +34,8 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	back_menu->SetSize(100, 100);
 	back_menu->SetLocation(900, 500);
 	menu = new Menu(game_setup, "image/menu.jpg");
-	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
-	{
-		std::cout << Mix_GetError() << std::endl;
-		std::cout << "failed to open sound device" << std::endl;
-	}
-	backgroundSound = Mix_LoadMUS("audio/background.mp3");
-	if (backgroundSound == NULL)
-	{
-		std::cout << Mix_GetError() << std::endl;
-		std::cout << "failed to load sound" << std::endl;
-	}
+	backgroundSound = new Game_music("Audio/background.mp3", MUSIC);
+	click_sound = new Game_music("Audio/Click.wav", AUDIO);
 	score_text->SetColor(0, 0, 0);
 	score_text->SetSize(150, 50);
 	score_text->SetLocation(800, 50);
@@ -48,10 +43,10 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	high_score_text->SetSize(150, 50);
 	high_score_text->SetLocation(800, 100);
 	score_tittle->SetColor(0, 0, 0);
-	score_tittle->SetSize(150, 50);
+	score_tittle->SetSize(80, 50);
 	score_tittle->SetLocation(650, 50);
 	high_score_tittle->SetColor(0, 0, 0);
-	high_score_tittle->SetSize(150, 50);
+	high_score_tittle->SetSize(75, 50);
 	high_score_tittle->SetLocation(650, 100);
 	for (int i = 0; i < 9; ++i)
 	{
@@ -67,9 +62,12 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	slowDown = false;
 	select = Uncommand;
 	healthPoint = HEALTH_POINT;
-	score_tittle->LoadText("Your score:");
-	high_score_tittle->LoadText("High score:");
+	score_tittle->LoadText("Score:");
+	high_score_tittle->LoadText("Best:");
 	saveScore->ReadScore();
+	bigger_sound = new Game_music("Audio/bigger.wav", AUDIO);
+	revive_sound = new Game_music("Audio/Revive.wav", AUDIO);
+	double_score_sound = new Game_music("Audio/Double Score.wav", AUDIO);
 }
 Main::~Main()
 {
@@ -89,12 +87,18 @@ Main::~Main()
 	delete score_tittle;
 	delete high_score_tittle;
 	delete saveScore;
+	delete game_over_texture;
+	delete game_over_sound;
+	delete click_sound;
+	delete bigger_sound;
+	delete revive_sound;
+	delete double_score_sound;
 }
 
 void Main::GameLoop()
 {
 	FirstSetup();
-	PlayMusic(backgroundSound);
+	backgroundSound->PlayMusic();
 	Mix_VolumeMusic(MIX_MAX_VOLUME);
 	Mix_Volume(-1, MIX_MAX_VOLUME);
 	while (!quit && game_setup->GetMainEvent()->type != SDL_QUIT && select != Game_Quit)
@@ -345,6 +349,7 @@ void Main::SetCloudCondition()
 	bookType = food->GetBookType();
 	if (bookType == SIZE)
 	{
+		bigger_sound->PlayAudio();
 		cloud->SetSize(CLOUD_WIDTH * 2, CLOUD_HEIGHT * 2);
 		hitboxH = CLOUD_WIDTH * 2;
 		hitboxW = CLOUD_HEIGHT * 2;
@@ -355,12 +360,14 @@ void Main::SetCloudCondition()
 	{
 		if (healthPoint < 3)
 		{
+			revive_sound->PlayAudio();
 			++healthPoint;
 			ReviveHeart(HEALTH_POINT - healthPoint);
 		}
 	}
 	else if (bookType == DOUBLE_SCORE)
 	{
+		double_score_sound->PlayAudio();
 		doubleScoreCoolDown = SDL_GetTicks();
 		scorePerBrain = SCORE_PER_BRAIN * 2;
 	}
@@ -375,15 +382,6 @@ void Main::IntergerToString(int passed_score, char string[])
 		string[i] = passed_score % 10 + 48;
 		passed_score = passed_score / 10;
 		--i;
-	}
-}
-
-void Main::PlayMusic(Mix_Music* music)
-{
-	if (Mix_PlayMusic(music, -1) == -1)
-	{
-		std::cout << Mix_GetError() << std::endl;
-		std::cout << "failed to play sound" << std::endl;
 	}
 }
 
@@ -417,6 +415,7 @@ void Main::CheckQuit()
 		{
 			if (game_setup->GetMainEvent()->button.button == SDL_BUTTON_LEFT)
 			{
+				click_sound->PlayAudio();
 				select = Game_Quit;
 			}
 		}
@@ -439,12 +438,14 @@ void Main::StartMenu()
 		GameLoop();
 		if (select == Game_Quit)
 		{
-			Mix_PauseMusic();
+			Mix_HaltMusic();
+			game_over_sound->PlayAudio();
 			CustomizeScoreStr();
 			while (game_setup->GetMainEvent()->type != SDL_QUIT && select != Back)
 			{
 				game_setup->Begin();
-				game_over->Draw();
+				background->Draw();
+				game_over_texture->Draw();
 				CheckGameOverCommand();
 				back_menu->LoadText("Back");
 				score_text->RenderText();
@@ -514,6 +515,7 @@ void Main::CheckGameOverCommand()
 		back_menu->SetColor(140, 120, 226);
 		if (game_setup->GetMainEvent()->type == SDL_MOUSEBUTTONDOWN)
 		{
+			click_sound->PlayAudio();
 			select = Back;
 		}
 	}
