@@ -8,17 +8,7 @@ Cloud::Cloud(Game_setup *passed_game_setup, std::string path, int x, int y, int 
 	cloud = new Sprite(game_setup->GetRenderer(), path, x, y, w, h);
 	cloud->SetAmountFrame(CLOUD_FRAME_X, CLOUD_FRAME_Y);
 	timeCheck = SDL_GetTicks();
-	if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
-	{
-		std::cout << Mix_GetError() << std::endl;
-		std::cout << "failed to open sound device" << std::endl;
-	}
-	eatBrain = Mix_LoadWAV("audio/EatBrain.wav");
-	if (eatBrain == NULL)
-	{
-		std::cout << Mix_GetError() << std::endl;
-		std::cout << "failed to load sound" << std::endl;
-	}
+	eatBrain = new Game_music("audio/EatBrain.wav", AUDIO);
 	stop = false;
 	moveLeft = false;
 	moveRight = false;
@@ -27,10 +17,10 @@ Cloud::Cloud(Game_setup *passed_game_setup, std::string path, int x, int y, int 
 	cloudSpeed = ClOUD_SPEED;
 }
 
-
 Cloud::~Cloud()
 {
 	delete cloud;
+	delete eatBrain;
 }
 
 void Cloud::Movement()
@@ -164,11 +154,7 @@ void Cloud::Stop(bool stop)
 
 void Cloud::EatBrainChunk()
 {
-	if (Mix_PlayChannel(-1, eatBrain, 0) == -1)
-	{
-		std::cout << Mix_GetError() << std::endl;
-		std::cout << "failed to play treasure sound" << std::endl;
-	}
+	eatBrain->PlayAudio();
 }
 
 void Cloud::SetCloudSpeed(double level)
