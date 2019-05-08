@@ -10,12 +10,12 @@
 #define PCH_H
 #define SCREEN_WIDTH 1081
 #define SCREEN_HEIGHT 600
-#define AMOUT_BRAIN 10
-#define AMOUT_THREAT 6
+#define AMOUT_BRAIN 6
+#define AMOUT_THREAT 3
 #define CLOUD_START_X 200
 #define CLOUD_START_Y 450
-#define CLOUD_WIDTH 100
-#define CLOUD_HEIGHT 100
+#define CLOUD_WIDTH 140
+#define CLOUD_HEIGHT 140
 #define BRAIN_WIDTH 50
 #define BRAIN_HEIGHT 50
 #define THREAT_WIDTH 50
@@ -58,6 +58,11 @@ enum Selection
 	Back,
 	Game_Quit
 };
+enum ModeMusic
+{
+	AUDIO,
+	MUSIC
+};
 #include<iostream>
 #include <SDL.h>
 #include <SDL_image.h>
@@ -71,6 +76,7 @@ enum Selection
 #include "Game_setup.h"
 #include "Sprite.h"
 #include "Game_Text.h"
+#include "Game_music.h"
 #include "SaveScore.h"
 #include "Cloud.h"
 #include "Brain.h"
@@ -79,11 +85,7 @@ enum Selection
 #include "Threat.h"
 #include "Menu.h"
 #include "Main.h"
-
-
-
-
-
+using namespace std;
 
 // TODO: add headers that you want to pre-compile here
 
