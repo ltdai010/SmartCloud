@@ -95,3 +95,13 @@ void Sprite::SetHeight(int h)
 {
 	rect.h = h;
 }
+
+void Sprite::SetBlendMode(SDL_BlendMode blendMode)
+{
+	SDL_SetTextureBlendMode(image, blendMode);
+}
+
+void Sprite::SetAlpha(Uint8 alpha)
+{
+	SDL_SetTextureAlphaMod(image, alpha);
+}
