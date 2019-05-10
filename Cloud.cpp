@@ -156,6 +156,10 @@ void Cloud::StopMoving()
 {
 	moveLeft = false;
 	moveRight = false;
+	preLeft = false;
+	preRight = false;
+	cloud->SetCurrentFrame(0);
+	cloud->PlayAnimation(0, 0, 0, 0);
 }
 
 void Cloud::EatBrainChunk()
