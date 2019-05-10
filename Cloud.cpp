@@ -44,7 +44,7 @@ void Cloud::UpdateAnimation()
 	{
 		cloud->PlayAnimation(1, 1, 1, 0);
 	}
-	else if(preLeft)
+	else if (preLeft)
 	{
 		cloud->SetCurrentFrame(0);
 		cloud->PlayAnimation(0, 0, 0, 0);
@@ -137,7 +137,7 @@ void Cloud::SetY(int y)
 	cloud->SetY(y);
 }
 
-void Cloud::Stop(bool stop)
+void Cloud::StopInBorder(bool stop)
 {
 	this->stop = stop;
 	if (stop && cloud->GetX() <= BORDER_LEFT)
@@ -150,6 +150,12 @@ void Cloud::Stop(bool stop)
 		preRight = true;
 		cloud->SetX(BORDER_RIGHT);
 	}
+}
+
+void Cloud::StopMoving()
+{
+	moveLeft = false;
+	moveRight = false;
 }
 
 void Cloud::EatBrainChunk()
