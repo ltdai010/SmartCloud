@@ -8,7 +8,6 @@ Menu::Menu(Game_setup *passed_game_setup, std::string path)
 	menu = new Sprite(game_setup->GetRenderer(), path.c_str(), 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	start = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
 	instruction = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
-	highScore = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
 	quit = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
 	instructionPage[0] = new Sprite(game_setup->GetRenderer(), "image/instruction-06.jpg", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	instructionPage[1] = new Sprite(game_setup->GetRenderer(), "image/instruction-09.jpg", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -16,20 +15,18 @@ Menu::Menu(Game_setup *passed_game_setup, std::string path)
 	instructionPage[3] = new Sprite(game_setup->GetRenderer(), "image/instruction-10.jpg", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	back = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
 	next = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
+	click = new Game_music("audio/Click.wav", AUDIO);
 	start->LoadText("Start game");
 	instruction->LoadText("Instruction");
-	highScore->LoadText("High score");
 	quit->LoadText("Quit");
 	back->LoadText("Back");
 	next->LoadText("Next");
 	start->SetSize(START_TEXT_WIDTH, START_TEXT_HEIGHT);
 	instruction->SetSize(START_TEXT_WIDTH, START_TEXT_HEIGHT);
-	highScore->SetSize(START_TEXT_WIDTH, START_TEXT_HEIGHT);
 	quit->SetSize(START_TEXT_WIDTH/2, START_TEXT_HEIGHT);
 	start->SetLocation(MENU_TEXT_X, 50);
 	instruction->SetLocation(MENU_TEXT_X, 150);
-	highScore->SetLocation(MENU_TEXT_X, 250);
-	quit->SetLocation(MENU_TEXT_X, 350);
+	quit->SetLocation(MENU_TEXT_X, 250);
 	mousePointX = 0;
 	mousePointY = 0;
 	back->SetColor(69, 29, 220);
@@ -49,7 +46,6 @@ Menu::~Menu()
 	delete menu;
 	delete start;
 	delete instruction;
-	delete highScore;
 	delete quit;
 	delete back;
 	delete next;
@@ -68,11 +64,9 @@ void Menu::DrawText()
 {
 	start->LoadText("Start game");
 	instruction->LoadText("Instruction");
-	highScore->LoadText("High score");
 	quit->LoadText("Quit");
 	start->RenderText();
 	instruction->RenderText();
-	highScore->RenderText();
 	quit->RenderText();
 }
 
@@ -86,6 +80,7 @@ void Menu::CheckCommand(Selection *select)
 		{
 			if (game_setup->GetMainEvent()->button.button == SDL_BUTTON_LEFT)
 			{
+				click->PlayAudio();
 				*select = Start;
 			}
 		}
@@ -101,6 +96,7 @@ void Menu::CheckCommand(Selection *select)
 		{
 			if (game_setup->GetMainEvent()->button.button == SDL_BUTTON_LEFT)
 			{
+				click->PlayAudio();
 				*select = Instruction;
 			}
 		}
@@ -111,26 +107,12 @@ void Menu::CheckCommand(Selection *select)
 	}
 	if (mousePointX > MENU_TEXT_X && mousePointX < MENU_TEXT_X + START_TEXT_WIDTH && mousePointY > 250 && mousePointY < 350)
 	{
-		highScore->SetColor(255, 0, 0);
-		if (game_setup->GetMainEvent()->type == SDL_MOUSEBUTTONDOWN)
-		{
-			if (game_setup->GetMainEvent()->button.button == SDL_BUTTON_LEFT)
-			{
-				*select = HighScore;
-			}
-		}
-	}
-	else
-	{
-		highScore->SetColor(0, 0, 0);
-	}
-	if (mousePointX > MENU_TEXT_X && mousePointX < MENU_TEXT_X + START_TEXT_WIDTH && mousePointY > 350 && mousePointY < 450)
-	{
 		quit->SetColor(255, 0, 0);
 		if (game_setup->GetMainEvent()->type == SDL_MOUSEBUTTONDOWN)
 		{
 			if (game_setup->GetMainEvent()->button.button == SDL_BUTTON_LEFT)
 			{
+				click->PlayAudio();
 				*select = Quit;
 			}
 		}
@@ -153,10 +135,12 @@ void Menu::CheckInstructionCommand(Selection* select)
 			{
 				if (currentPage == 0)
 				{
+					click->PlayAudio();
 					*select = Back;
 				}
 				else
 				{
+					click->PlayAudio();
 					backPage = true;
 					currentPage--;
 				}
@@ -174,6 +158,7 @@ void Menu::CheckInstructionCommand(Selection* select)
 		{
 			if (game_setup->GetMainEvent()->button.button == SDL_BUTTON_LEFT && currentPage < 3 && !nextPage)
 			{
+				click->PlayAudio();
 				nextPage = true;
 				++currentPage;
 			}
