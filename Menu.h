@@ -14,10 +14,10 @@ private:
 	Game_setup *game_setup;
 	Game_Text *start;
 	Game_Text *instruction;
-	Game_Text *highScore;
 	Game_Text *quit;
 	Game_Text *next;
 	Game_Text *back;
+	Game_music *click;
 	Sprite *instructionPage[4];
 	int currentPage;
 	int mousePointX;
