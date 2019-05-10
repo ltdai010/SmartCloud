@@ -256,11 +256,11 @@ void Main::UpdateCondition()
 {
 	if (CloudTouchBorder()) //if cloud touch border, it stops
 	{
-		cloud->Stop(true);
+		cloud->StopInBorder(true);
 	}
 	else
 	{
-		cloud->Stop(false);
+		cloud->StopInBorder(false);
 	}
 	if (EatenBook())
 	{
@@ -443,9 +443,9 @@ void Main::StartMenu()
 		GameLoop();
 		if (select == Game_Quit)
 		{
+			cloud->StopMoving();
 			Mix_HaltMusic();
 			DrawGameOverScreen();
-			Mix_HaltChannel(-1);
 			if (HighScore())
 			{
 				saveScore->SetScore(score);
@@ -509,6 +509,7 @@ void Main::CheckGameOverCommand()
 		back_menu->SetColor(140, 120, 226);
 		if (game_setup->GetMainEvent()->type == SDL_MOUSEBUTTONDOWN)
 		{
+			Mix_HaltChannel(-1);
 			click_sound->PlayAudio();
 			select = Back;
 		}
@@ -535,7 +536,6 @@ void Main::CustomizeScoreStr()
 	{
 		temp = temp + scoreStr[i];
 	}
-	std::cout << "Score:" << temp << std::endl;
 	score_text->SetSize(20 * length, 50);
 	score_text->SetLocation(500, 300);
 	score_text->LoadText(temp);
