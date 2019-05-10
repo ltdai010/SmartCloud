@@ -14,7 +14,8 @@ public:
 	void SetX(int x);
 	void SetY(int y);
 	void SetSize(int w, int h);
-	void Stop(bool stop);
+	void StopInBorder(bool stop);
+	void StopMoving();
 	void SetCloudSpeed(double level);
 	void EatBrainChunk();
 private:
@@ -29,4 +30,3 @@ private:
 	bool stop;
 	int cloudSpeed;
 };
-
