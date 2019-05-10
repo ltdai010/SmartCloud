@@ -7,14 +7,14 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	quit = false;
 	game_setup = new Game_setup(&quit, screenWidth, screenHeight);
 	background = new Sprite(game_setup->GetRenderer(), "image/background4.png", 0, 0, screenWidth, screenHeight);
-	game_over_texture = new Sprite(game_setup->GetRenderer(), "image/game_over_texture.png", 0, 0, screenWidth, screenHeight);
+	game_over_texture = new Sprite(game_setup->GetRenderer(), "image/game_over_board.jpg", 240, 125, 500, 350);
 	game_over_sound = new Game_music("audio/game_over.wav", AUDIO);
-	game_over_texture->SetBlendMode(SDL_BLENDMODE_BLEND);
-	game_over_texture->SetAlpha(191);
 	cloud = new Cloud(game_setup, "image/cloud.png", CLOUD_START_X, CLOUD_START_Y, cloudWidth, cloudHeight);
 	food = new Food(game_setup);
 	threat = new Threat(game_setup);
 	saveScore = new SaveScore("save/save_game.txt");
+	eat_rotten_brain_sound = new Game_music("audio/RottenBrain.wav", AUDIO);
+	eat_virut_sound = new Game_music("audio/Virut.wav", AUDIO);
 	scorePerBrain = SCORE_PER_BRAIN;
 	for (int i = 0; i < HEALTH_POINT; ++i)
 	{
@@ -34,7 +34,10 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	back_menu->SetSize(100, 100);
 	back_menu->SetLocation(900, 500);
 	menu = new Menu(game_setup, "image/menu.jpg");
+	black_background = new Sprite(game_setup->GetRenderer(), "image/black.png", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	backgroundSound = new Game_music("Audio/background.mp3", MUSIC);
+	black_background->SetBlendMode(SDL_BLENDMODE_BLEND);
+	black_background->SetAlpha(0);
 	click_sound = new Game_music("Audio/Click.wav", AUDIO);
 	score_text->SetColor(0, 0, 0);
 	score_text->SetSize(150, 50);
@@ -158,6 +161,7 @@ bool Main::EatenRottenBrain(int i)
 	if (cloud->GetX() + hitboxW >= threat->GetRottenBrainX(i) && cloud->GetX() <= threat->GetRottenBrainX(i) + BRAIN_WIDTH &&
 		cloud->GetY() + hitboxH >= threat->GetRottenBrainY(i) && cloud->GetY() + 20 <= threat->GetRottenBrainY(i) + BRAIN_HEIGHT)
 	{
+		eat_rotten_brain_sound->PlayAudio();
 		return true;
 	}
 	else
@@ -173,6 +177,7 @@ bool Main::EatenVirus(int i)
 	{
 		slowDown = true;
 		slowTime = SDL_GetTicks();
+		eat_virut_sound->PlayAudio();
 		return true;
 	}
 	else
@@ -350,17 +355,17 @@ void Main::SetCloudCondition()
 	if (bookType == SIZE)
 	{
 		bigger_sound->PlayAudio();
-		cloud->SetSize(CLOUD_WIDTH * 2, CLOUD_HEIGHT * 2);
-		hitboxH = CLOUD_WIDTH * 2;
-		hitboxW = CLOUD_HEIGHT * 2;
+		cloud->SetSize(CLOUD_WIDTH * 1.5, CLOUD_HEIGHT * 1.5);
+		hitboxH = CLOUD_WIDTH * 1.5;
+		hitboxW = CLOUD_HEIGHT * 1.5;
 		invincible = true;
 		bigSizeCoolDown = SDL_GetTicks();
 	}
 	else if (bookType == LIFE)
 	{
+		revive_sound->PlayAudio();
 		if (healthPoint < 3)
 		{
-			revive_sound->PlayAudio();
 			++healthPoint;
 			ReviveHeart(HEALTH_POINT - healthPoint);
 		}
@@ -439,19 +444,8 @@ void Main::StartMenu()
 		if (select == Game_Quit)
 		{
 			Mix_HaltMusic();
-			game_over_sound->PlayAudio();
-			CustomizeScoreStr();
-			while (game_setup->GetMainEvent()->type != SDL_QUIT && select != Back)
-			{
-				game_setup->Begin();
-				background->Draw();
-				game_over_texture->Draw();
-				CheckGameOverCommand();
-				back_menu->LoadText("Back");
-				score_text->RenderText();
-				back_menu->RenderText();
-				game_setup->End();
-			}
+			DrawGameOverScreen();
+			Mix_HaltChannel(-1);
 			if (HighScore())
 			{
 				saveScore->SetScore(score);
@@ -542,8 +536,8 @@ void Main::CustomizeScoreStr()
 		temp = temp + scoreStr[i];
 	}
 	std::cout << "Score:" << temp << std::endl;
-	score_text->SetSize(30 * length, 100);
-	score_text->SetLocation(700, 270);
+	score_text->SetSize(20 * length, 50);
+	score_text->SetLocation(500, 300);
 	score_text->LoadText(temp);
 }
 
@@ -557,5 +551,48 @@ bool Main::HighScore()
 	else
 	{
 		return false;
+	}
+}
+
+void Main::DrawGameOverScreen()
+{
+	fadeOutTime = SDL_GetTicks();
+	int alpha = 0;
+	while (game_setup->GetMainEvent()->type != SDL_QUIT && select != Back)
+	{
+		game_setup->Begin();
+		background->Draw();
+		game_quit->Draw();
+		DrawHeart();
+		cloud->Draw();
+		threat->Draw();
+		food->Draw();
+		score_tittle->RenderText();
+		high_score_tittle->RenderText();
+		score_text->LoadText(scoreStr);
+		score_text->RenderText();
+		high_score_text->LoadText(hiScoreStr);
+		high_score_text->RenderText();
+		black_background->SetAlpha(alpha);
+		black_background->Draw();
+		if (fadeOutTime + 10 < SDL_GetTicks() && alpha < 192)
+		{
+			alpha += 1;
+			fadeOutTime = SDL_GetTicks();
+			if (alpha == 192)
+			{
+				game_over_sound->PlayAudio();
+			}
+		}
+		if(alpha > 191)
+		{
+			game_over_texture->Draw();
+			CheckGameOverCommand();
+			back_menu->LoadText("Back");
+			CustomizeScoreStr();
+			score_text->RenderText();
+			back_menu->RenderText();
+		}
+		game_setup->End();
 	}
 }
