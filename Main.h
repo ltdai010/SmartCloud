@@ -18,6 +18,7 @@ public:
 	void UpdateCondition();
 	void SetCloudCondition();
 	void CheckQuit();
+	void DrawGameOverScreen();
 	void IntergerToString(int passed_score, char string[]);
 	bool CloudTouchBorder();
 	void UpdateMusic();
@@ -46,6 +47,9 @@ private:
 	Game_music *bigger_sound;
 	Game_music *revive_sound;
 	Game_music *double_score_sound;
+	Game_music *eat_virut_sound;
+	Game_music *eat_rotten_brain_sound;
+	Sprite *black_background;
 	SaveScore *saveScore;
 	bool quit;
 	bool invincible;
@@ -61,6 +65,7 @@ private:
 	long long int slowTime;
 	long long int bigSizeCoolDown;
 	long long int doubleScoreCoolDown;
+	long long int fadeOutTime;
 	int hitboxW;
 	int hitboxH;
 	int mousePointX;
