@@ -1,74 +1,107 @@
-#pragma once
-class Main
+#include "pch.h"
+#include "Sprite.h"
+
+
+Sprite::Sprite(SDL_Renderer *passed_renderer, std::string path, int x, int y, int w, int h)
 {
-public:
-	Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight);
-	~Main();
-	void GameLoop();
-	void FirstSetup();
-	bool EatenBrain(int i);
-	bool EatenBook();
-	bool EatenRottenBrain(int i);
-	bool EatenVirus(int i);
-	bool Missed(int y);
-	bool HighScore();
-	void DrawHeart();
-	void BreakHeart(int i);
-	void ReviveHeart(int i);
-	void UpdateCondition();
-	void SetCloudCondition();
-	void CheckQuit();
-	void DrawGameOverScreen();
-	void IntergerToString(int passed_score, char string[]);
-	bool CloudTouchBorder();
-	void UpdateMusic();
-	void StartMenu();
-	void CheckGameOverCommand();
-	void CustomizeScoreStr();
-private:
-	Game_setup *game_setup;
-	Game_Text *score_text;
-	Game_Text *high_score_text;
-	Game_Text *high_score_tittle;
-	Game_Text *score_tittle;
-	Sprite *game_quit;
-	Sprite *background;
-	Sprite *heart[HEALTH_POINT];
-	Cloud *cloud;
-	Food *food;
-	Menu *menu;
-	Threat *threat;
-	Game_music *backgroundSound;
-	Sprite *game_over;
-	Sprite *game_over_texture;
-	Game_Text *back_menu;
-	Game_music *click_sound;
-	Game_music *game_over_sound;
-	Game_music *bigger_sound;
-	Game_music *revive_sound;
-	Game_music *double_score_sound;
-	Game_music *eat_virut_sound;
-	Game_music *eat_rotten_brain_sound;
-	Sprite *black_background;
-	SaveScore *saveScore;
-	bool quit;
-	bool invincible;
-	char scoreStr[10];
-	char hiScoreStr[10];
-	Uint32 score;
-	int scorePerBrain;
-	BookType bookType;
-	long long int timeCheck;
-	bool playMusic;
-	bool slowDown;
-	Selection select;
-	long long int slowTime;
-	long long int bigSizeCoolDown;
-	long long int doubleScoreCoolDown;
-	long long int fadeOutTime;
-	int hitboxW;
-	int hitboxH;
-	int mousePointX;
-	int mousePointY;
-	int healthPoint;
-};
+	renderer = passed_renderer;
+	image = NULL;
+	image = IMG_LoadTexture(renderer, path.c_str());
+	if (image == NULL)
+	{
+		std::cout << "Could not load image" << std::endl;
+	}
+	SDL_QueryTexture(image, NULL, NULL, &img_width, &img_height);
+	rect.x = x;
+	rect.y = y;
+	rect.w = w;
+	rect.h = h;
+	crop.x = 0;
+	crop.y = 0;
+	crop.w = img_width;
+	crop.h = img_height;
+	currentFrame = 0;
+}
+
+
+Sprite::~Sprite()
+{
+	SDL_DestroyTexture(image);
+}
+
+void Sprite::SetAmountFrame(int x, int y)
+{
+	amount_Frame_X = x;
+	amount_Frame_Y = y;
+}
+
+void Sprite::SetCurrentFrame(int x)
+{
+	currentFrame = x;
+}
+
+void Sprite::PlayAnimation(int beginFrame, int endFrame, int row, float speed)
+{
+	if (animationDelay + speed < SDL_GetTicks())
+	{
+		if (endFrame <= currentFrame)
+		{
+			currentFrame = beginFrame;
+		}
+		else
+		{
+			++currentFrame;
+		}
+		crop.x = currentFrame * (img_width / amount_Frame_X);
+		crop.y = row * (img_height / amount_Frame_Y);
+		crop.w = img_width / amount_Frame_X;
+		crop.h = img_height / amount_Frame_Y;
+		animationDelay = SDL_GetTicks();
+	}
+}
+
+void Sprite::Draw()
+{
+	SDL_RenderCopy(renderer, image, &crop, &rect);
+}
+
+
+int Sprite::GetX()
+{
+	return rect.x;
+}
+
+int Sprite::GetY()
+{
+	return rect.y;
+}
+
+void Sprite::SetX(int x)
+{
+	rect.x = x;
+}
+
+void Sprite::SetY(int y)
+{
+	rect.y = y;
+}
+
+void Sprite::SetWidth(int w)
+{
+	rect.w = w;
+}
+
+void Sprite::SetHeight(int h)
+{
+	rect.h = h;
+}
+
+void Sprite::SetBlendMode(SDL_BlendMode blendMode)
+{
+	SDL_SetTextureBlendMode(image, blendMode);
+}
+
+void Sprite::SetAlpha(Uint8 alpha)
+{
+	SDL_SetTextureAlphaMod(image, alpha);
+}
