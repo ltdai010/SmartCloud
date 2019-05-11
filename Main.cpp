@@ -33,6 +33,11 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	back_menu->SetColor(69, 29, 220);
 	back_menu->SetSize(100, 100);
 	back_menu->SetLocation(900, 500);
+	count_down = new Game_Text(game_setup, "font/FVF Fernando 08.ttf", 16);
+	count_down->SetColor(244, 179, 66);
+	count_down->SetSize(300, 150);
+	count_down->SetLocation(465, 225);
+	count_down->LoadText("READY");
 	menu = new Menu(game_setup, "image/menu.jpg");
 	black_background = new Sprite(game_setup->GetRenderer(), "image/black.png", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	backgroundSound = new Game_music("Audio/background.mp3", MUSIC);
@@ -71,6 +76,7 @@ Main::Main(int screenWidth, int screenHeight, int cloudWidth, int cloudHeight)
 	bigger_sound = new Game_music("Audio/bigger.wav", AUDIO);
 	revive_sound = new Game_music("Audio/Revive.wav", AUDIO);
 	double_score_sound = new Game_music("Audio/Double Score.wav", AUDIO);
+	countDown = 3;
 }
 Main::~Main()
 {
@@ -440,6 +446,7 @@ void Main::StartMenu()
 	}
 	if (select == Start)
 	{
+		DrawGameStartScreen();
 		GameLoop();
 		if (select == Game_Quit)
 		{
@@ -594,5 +601,35 @@ void Main::DrawGameOverScreen()
 			back_menu->RenderText();
 		}
 		game_setup->End();
+	}
+}
+
+void Main::DrawGameStartScreen()
+{
+	countDown = 3 + 1;
+	count_down->LoadText("READY");
+	count_down->SetSize(400, 150);
+	count_down->SetLocation(340, 225);
+	black_background->SetBlendMode(SDL_BLENDMODE_BLEND);
+	black_background->SetAlpha(191);
+	countDownTime = SDL_GetTicks();
+	while (game_setup->GetMainEvent()->type != SDL_QUIT && countDown > 0)
+	{
+		game_setup->Begin();
+		background->Draw();
+		black_background->Draw();
+		count_down->RenderText();
+		game_setup->End();
+		if (countDownTime + 1000 < SDL_GetTicks())
+		{
+			count_down->SetSize(75, 150);
+			count_down->SetLocation(502, 225);
+			char temp_count[2];
+			temp_count[0] = countDown + 48 - 1;
+			temp_count[1] = '\0';
+			count_down->LoadText(temp_count);
+			countDown--;
+			countDownTime = SDL_GetTicks();
+		}
 	}
 }
