@@ -19,6 +19,7 @@ public:
 	void SetCloudCondition();
 	void CheckQuit();
 	void DrawGameOverScreen();
+	void DrawGameStartScreen();
 	void IntergerToString(int passed_score, char string[]);
 	bool CloudTouchBorder();
 	void UpdateMusic();
@@ -31,6 +32,7 @@ private:
 	Game_Text *high_score_text;
 	Game_Text *high_score_tittle;
 	Game_Text *score_tittle;
+	Game_Text *count_down;
 	Sprite *game_quit;
 	Sprite *background;
 	Sprite *heart[HEALTH_POINT];
@@ -66,6 +68,8 @@ private:
 	long long int bigSizeCoolDown;
 	long long int doubleScoreCoolDown;
 	long long int fadeOutTime;
+	long long int countDownTime;
+	int countDown;
 	int hitboxW;
 	int hitboxH;
 	int mousePointX;
